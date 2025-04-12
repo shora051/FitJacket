@@ -163,8 +163,24 @@ body {
 .footer-bottom a {
   color: #F8C424;
   text-decoration: none;
-  margin: 0 4px;
+  margin: 0;
   font-weight: 500;
+}
+
+.footer-bottom .footer-credits a:not(:last-child)::after {
+  content: ",";
+  color: #aaa;
+  margin-right: 3px;
+}
+
+.footer-bottom a::after {
+  content: ",";
+  color: #aaa;
+  margin-left: 2px;
+}
+
+.footer-bottom a:last-child::after {
+  content: "";
 }
 
 .footer-bottom a:hover {
