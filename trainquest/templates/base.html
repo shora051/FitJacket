@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FitJacket</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+</head>
+<body>
+    <nav class="navbar">
+        <img src="{% static 'img/FitJacketLogo.png' %}" alt="FitJacket Logo" class="logo">
+        <div class="nav-links">
+            <a href="#">About</a>
+            <a href="#">My Profile</a>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}
+        <!-- page-specific content goes here -->
+        {% endblock %}
+    </main>
+    <footer class="footer-section">
+  <div class="footer-content-wrapper">
+    <!-- Left column -->
+    <div class="footer-left">
+      <h5 class="footer-heading">FITJACKET</h5>
+      <hr class="footer-divider" />
+      <p class="footer-text">
+        FitJacket helps you turn intention into action — guiding you to build healthier habits, one step at a time.
+        Start where you are, stay consistent, and see just how far you can go.
+      </p>
+    </div>
+
+    <!-- Right column -->
+    <div class="footer-right">
+      <h5 class="footer-heading">CONTACT</h5>
+      <hr class="footer-divider" />
+      <p class="footer-text">Atlanta, GA 30332</p>
+      <p class="footer-text"><a href="mailto:support@fitjacket.com" class="footer-link">support@fitjacket.com</a></p>
+      <p class="footer-text">+1 800-FIT-JACK</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+  <div class="footer-credits">
+    Designed by:
+    <a href="https://www.linkedin.com/in/sahilhora/" target="_blank">Sahil Hora</a>,
+    <a href="https://www.linkedin.com/in/taran-puvvala/" target="_blank">Taran Puvvala</a>,
+    <a href="https://www.linkedin.com/in/neilm27/" target="_blank">Neil Mehta</a>,
+    <a href="https://www.linkedin.com/in/sahil-ravani/" target="_blank">Sahil Ravani</a>,
+    <a href="https://www.linkedin.com/in/surya-atmuri-7b9232292/" target="_blank">Surya Atmuri</a>
+  </div>
+  <div class="footer-copyright">
+    © Copyright - 2024
+  </div>
+</div>
+
+</footer>
+
+</body>
+</html>
+
+

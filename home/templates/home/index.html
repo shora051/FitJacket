@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1 class="title">FIT<span class="highlight">JACKET</span></h1>
+
+<div class="images">
+    <img src="{% static 'img/gym1.jpg' %}" alt="Workout 1" class="fit-image">
+    <img src="{% static 'img/gym2.jpg' %}" alt="Workout 2" class="fit-image">
+</div>
+
+<p class="subheading">FitJacket helps you turn intention into action — guiding you to build healthier habits, one step at a time. It’s designed to keep you grounded, focused, and moving forward, even on the tough days. Start where you are, stay consistent, and see just how far you can go.</p>
+
+<div class="buttons">
+    <a href="#" class="btn">Sign up</a>
+    <a href="#" class="btn">Log in</a>
+</div>
+{% endblock %}
+
