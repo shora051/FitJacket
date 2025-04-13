@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow p-3 mb-4 rounded bg-dark text-white">
+          <div class="card-body">
+            <h2 class="text-center mb-4">Sign Up</h2>
+            <form method="POST" style="text-align: left;">
+              {% csrf_token %}
+              <div class="form-fields" style="text-align: left;">
+                {% for field in template_data.form %}
+                <div class="mb-3" style="text-align: left;">
+                  <label for="{{ field.id_for_label }}" class="form-label" style="text-align: left; display: block;">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <div class="text-danger">
+                      {{ field.errors }}
+                    </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              <button type="submit" class="btn btn-warning mt-3">Sign Up</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-fields input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    background-color: white !important;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: black !important;
+  }
+  
+  .form-fields input:focus {
+    background-color: white !important;
+    color: black !important;
+    border-color: #F8C424;
+    box-shadow: 0 0 0 2px rgba(248, 196, 36, 0.2);
+  }
+  
+  .form-fields label {
+    color: #ccc;
+    text-align: left;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .text-danger {
+    color: #ff4444 !important;
+    font-size: 0.9em;
+    margin-top: 5px;
+  }
+</style>
+{% endblock content %}

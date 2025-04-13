@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow p-3 mb-4 rounded bg-dark text-white">
+          <div class="card-body">
+            <h2 class="text-center mb-4">Login</h2>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="form-fields">
+                <div class="mb-3">
+                  <label for="id_username" class="form-label">Username:</label>
+                  <input type="text" name="username" id="id_username" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <label for="id_password" class="form-label">Password:</label>
+                  <input type="password" name="password" id="id_password" class="form-control">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-warning mt-3">Login</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-fields input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    background-color: white !important;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: black !important;
+  }
+  
+  .form-fields label {
+    color: #ccc;
+    text-align: left;
+    display: block;
+    margin-bottom: 5px;
+  }
+</style>
+{% endblock content %}
