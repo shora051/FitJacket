@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms.utils import ErrorList
 from django.utils.safestring import mark_safe
+from .models import UserProfile
 
 class CustomErrorList(ErrorList):
     def __str__(self):
@@ -30,3 +31,17 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['age', 'height', 'weight']
+        widgets = {
+            'age': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter your age'}),
+            'height': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter your height in inches'}),
+            'weight': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter your weight in pounds'}),
+        }
+        labels = {
+            'height': 'Height (inches)',
+            'weight': 'Weight (lbs)',
+        }
