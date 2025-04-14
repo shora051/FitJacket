@@ -35,13 +35,21 @@ class CustomUserCreationForm(UserCreationForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['age', 'height', 'weight']
+        fields = ['first_name', 'last_name', 'age', 'height', 'weight', 'bio']
         widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your first name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your last name'}),
             'age': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter your age'}),
             'height': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter your height in inches'}),
             'weight': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter your weight in pounds'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter your fitness goal', 'rows': 4}),
         }
         labels = {
-            'height': 'Height (inches)',
-            'weight': 'Weight (lbs)',
+            'height': 'Height',
+            'weight': 'Weight',
+            'bio': 'Fitness Goal',
+        }
+        help_texts = {
+            'height': None,  # Remove help text for height
+            'weight': None,  # Remove help text for weight
         }

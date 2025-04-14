@@ -15,7 +15,7 @@
               {% csrf_token %}
               <div class="form-fields">
                 {% for field in form %}
-                <div class="mb-3">
+                <div class="field-container">
                   <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                   {{ field }}
                   {% if field.help_text %}
@@ -39,27 +39,39 @@
 </div>
 
 <style>
-  .form-fields input {
+  .form-fields input, .form-fields textarea {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
+    padding: 10px;
     background-color: white !important;
     border: 1px solid #ccc;
     border-radius: 4px;
     color: black !important;
   }
-  
+
+  .form-fields input:focus, .form-fields textarea:focus {
+    background-color: white !important;
+    color: black !important;
+    border-color: #F8C424;
+    box-shadow: 0 0 0 2px rgba(248, 196, 36, 0.2);
+  }
+
   .form-fields label {
     color: #ccc;
     text-align: left;
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px; /* Space between label and input */
   }
 
-  .form-text {
-    color: #888 !important;
-    font-size: 0.85em;
-    margin-top: 4px;
+  .field-container {
+    margin-bottom: 16px; /* Consistent spacing between fields */
+  }
+
+  .form-fields .form-text {
+    margin-top: 4px; /* Space between input and help text */
+  }
+
+  .form-fields .text-danger {
+    margin-top: 4px; /* Space between input and error message */
   }
 </style>
-{% endblock content %} 
+{% endblock content %}

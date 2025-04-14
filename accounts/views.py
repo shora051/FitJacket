@@ -60,13 +60,35 @@ def profile_setup(request):
 
 def signup_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)  # Use CustomUserCreationForm
         if form.is_valid():
             user = form.save()
             auth_login(request, user)
             return redirect('accounts.profile_setup')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()  # Use CustomUserCreationForm
     return render(request, 'accounts/signup.html', {'template_data': {'form': form}})
 
+@login_required
+def profile_settings(request):
+    try:
+        user_profile = request.user.userprofile
+        if request.method == 'POST':
+            form = UserProfileForm(request.POST, instance=user_profile)
+            if form.is_valid():
+                form.save()
+                return redirect('accounts.profile_settings')
+        else:
+            form = UserProfileForm(instance=user_profile)
+        return render(request, 'accounts/profile_settings.html', {'profile': user_profile, 'form': form})
+    except UserProfile.DoesNotExist:
+        return redirect('accounts.profile_setup')
+
+@login_required
+def profile_view(request):
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+        return redirect('accounts.profile_settings')  # Redirect to settings if profile exists
+    except UserProfile.DoesNotExist:
+        return redirect('accounts.profile_setup')  # Redirect to setup if no profile exists
 
