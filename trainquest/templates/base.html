@@ -13,10 +13,12 @@
         <a href="{% url 'home.index' %}">
             <img src="{% static 'img/FitJacketLogo.png' %}" alt="FitJacket Logo" class="logo">
         </a>
-        <div class="nav-links">
-            <a href="{% url 'home.about' %}">About</a>
-            <a href="#">My Profile</a>
-        </div>
+<!-- In the nav-links div -->
+<div class="nav-links">
+  <a href="{% url 'home.about' %}">About</a>
+  <a href="{% url 'dashboard.exercises' %}">Exercises</a>
+  <a href="#">My Profile</a>
+</div>
     </nav>
 
     <main>
