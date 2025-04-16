@@ -12,15 +12,23 @@ def logout(request):
     return redirect('home.index')
 
 def login_view(request):
+    error_message = None
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
             return redirect('home.index')
+        else:
+            error_message = "Invalid username or password. Please try again."
     else:
         form = AuthenticationForm()
-    return render(request, 'accounts/login.html', {'template_data': {'form': form}})
+    return render(request, 'accounts/login.html', {
+        'template_data': {
+            'form': form,
+            'error_message': error_message
+        }
+    })
 
 def signup(request):
     template_data = {}
