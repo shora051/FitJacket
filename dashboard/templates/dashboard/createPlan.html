@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="exercise-container" style="background-color: #111; padding: 30px 20px; max-width: 1200px; margin: 0 auto; font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; min-height: 100vh;">
+        <h1 class="exercise-title" style="color: #f8c424; text-align: center; margin-bottom: 20px;">Create <span class="highlight">Plan</span></h1>
+
+        <div class="exercise-layout" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 20px; align-items: stretch; flex-grow: 1;">
+            <!-- Left side: Session List -->
+            <div class="exercise-search-area" style="grid-row: 1 / span 2; background-color: #1e1e1e; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+                <h2 style="color: #f8c424;">Saved Sessions</h2>
+                <ul id="sessionList" style="list-style-type: none; padding: 0; color: #fff;"></ul>
+            </div>
+            <!-- Top Right: Create Session Button -->
+            <div style="background-color: #1e1e1e; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+                <button onclick="openModal()" class="search-btn" style="background-color: #f8c424; color: #000; border-radius: 12px; font-size: 1.2em; padding: 10px 20px; width: 100%; font-family: 'Montserrat', sans-serif; outline: none; transition: background-color 0.3s;">Create Session</button>
+            </div>
+            <!-- Bottom Right: Title and Workout Fields -->
+            <div class="chatbot-container" style="background-color: #1e1e1e; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center;">
+                    <input type="text" id="workoutField" placeholder="Workout" class="chat-input" style="margin-bottom: 10px; background-color: #333; color: #fff; border-radius: 12px; flex-grow: 1; margin-right: 10px; outline: none;">
+                    <button onclick="addWorkout()" class="chat-btn" style="background-color: #f8c424; color: #000; border-radius: 12px; font-family: 'Montserrat', sans-serif; padding: 10px 20px; outline: none; transition: background-color 0.3s;">Add</button>
+                </div>
+                <ul id="currentWorkoutList" style="list-style-type: none; padding: 0; margin-top: 10px; color: #fff;"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Title -->
+    <div id="titleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+        <div style="background-color: #1e1e1e; padding: 20px; border-radius: 12px; width: 300px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <h3 style="color: #f8c424;">Enter Session Title</h3>
+            <input type="text" id="sessionTitle" placeholder="Title" class="chat-input" style="margin-bottom: 10px; background-color: #333; color: #fff; border-radius: 12px; outline: none;">
+            <button onclick="saveSession()" class="chat-btn" style="background-color: #f8c424; color: #000; border-radius: 12px; font-family: 'Montserrat', sans-serif; outline: none; transition: background-color 0.3s;">Save</button>
+        </div>
+    </div>
+
+    <!-- Session Modal -->
+    <div id="sessionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+        <div style="background-color: #1e1e1e; padding: 15px; border-radius: 12px; width: 280px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <h3 style="color: #f8c424;">Session Workouts</h3>
+            <ul id="modalWorkoutList" style="list-style-type: none; padding: 0; margin-bottom: 10px; color: #fff;"></ul>
+            <button onclick="saveChanges()" class="chat-btn" style="background-color: #f8c424; color: #000; border-radius: 12px; font-family: 'Montserrat', sans-serif; outline: none; transition: background-color 0.3s;">Save</button>
+            <button onclick="closeSessionModal()" class="search-btn" style="background-color: #f44336; color: #fff; border-radius: 12px; font-family: 'Montserrat', sans-serif; outline: none; transition: background-color 0.3s;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionItem;
+
+        function addWorkout() {
+            const workout = document.getElementById('workoutField').value;
+            if (workout) {
+                const list = document.getElementById('currentWorkoutList');
+                const listItem = document.createElement('li');
+                listItem.textContent = workout;
+                list.appendChild(listItem);
+                document.getElementById('workoutField').value = '';
+            }
+        }
+
+        function openModal() {
+            document.getElementById('titleModal').style.display = 'flex';
+        }
+
+        function openSessionModal(sessionItem) {
+            currentSessionItem = sessionItem;
+            const workoutList = sessionItem.querySelector('ul').cloneNode(true);
+            const modalWorkoutList = document.getElementById('modalWorkoutList');
+            modalWorkoutList.innerHTML = '';
+            for (let workout of workoutList.children) {
+                const workoutItem = document.createElement('li');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = workout.textContent;
+                workoutItem.appendChild(input);
+                modalWorkoutList.appendChild(workoutItem);
+            }
+            document.getElementById('sessionModal').style.display = 'flex';
+        }
+
+        function saveChanges() {
+            const modalWorkoutList = document.getElementById('modalWorkoutList');
+            const workoutList = currentSessionItem.querySelector('ul');
+            workoutList.innerHTML = '';
+            for (let workoutItem of modalWorkoutList.children) {
+                const workout = document.createElement('li');
+                workout.textContent = workoutItem.querySelector('input').value;
+                workoutList.appendChild(workout);
+            }
+            closeSessionModal();
+        }
+
+        function closeSessionModal() {
+            document.getElementById('sessionModal').style.display = 'none';
+        }
+
+        function saveSession() {
+            const title = document.getElementById('sessionTitle').value;
+            if (title) {
+                const sessionList = document.getElementById('sessionList');
+                const sessionItem = document.createElement('li');
+                sessionItem.textContent = title;
+                sessionItem.onclick = function() {
+                    openSessionModal(this);
+                };
+                const workoutList = document.createElement('ul');
+                workoutList.style.display = 'none';
+                const currentWorkouts = document.getElementById('currentWorkoutList').children;
+                for (let workout of currentWorkouts) {
+                    const workoutItem = document.createElement('li');
+                    workoutItem.textContent = workout.textContent;
+                    workoutList.appendChild(workoutItem);
+                }
+                sessionItem.appendChild(workoutList);
+
+                // Add edit button
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.style.marginLeft = '10px';
+                editButton.style.backgroundColor = '#f8c424';
+                editButton.style.color = '#000';
+                editButton.style.borderRadius = '12px';
+                editButton.style.fontFamily = 'Montserrat, sans-serif';
+                editButton.style.padding = '5px 10px';
+                editButton.style.outline = 'none';
+                editButton.style.transition = 'background-color 0.3s';
+                editButton.onclick = function(event) {
+                    event.stopPropagation();
+                    openSessionModal(sessionItem);
+                };
+                sessionItem.appendChild(editButton);
+
+                sessionList.appendChild(sessionItem);
+                document.getElementById('currentWorkoutList').innerHTML = '';
+                document.getElementById('sessionTitle').value = '';
+                document.getElementById('titleModal').style.display = 'none';
+            }
+        }
+    </script>
+{% endblock %}

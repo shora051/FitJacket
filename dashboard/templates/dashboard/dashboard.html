@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <h1>Dashboard</h1>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; justify-items: center;">
+        <div style="width: 100px; height: 100px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">Box 1</div>
+        <div style="width: 100px; height: 100px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">Box 2</div>
+        <button onclick="location.href='/dashboard/createPlan'" style="width: 100px; height: 100px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+            Create Plan
+        </button>
+        <div style="grid-column: 1 / 3; width: 100px; height: 100px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">Box 4</div>
+        <div style="grid-column: 2 / 4; width: 100px; height: 100px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">Box 5</div>
+    </div>
+{% endblock %}
