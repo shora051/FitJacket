@@ -23,10 +23,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home.about' %}">About</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard.learn' %}">Learn</a>
-                    </li>
                     {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard.index' %}">Dashboard</a>
+                        </li>
+                        <li class="nav-item dropdown">
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 My Profile
