@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow p-3 mb-4 rounded bg-dark text-white">
+          <div class="card-body">
+            <h2 class="text-center mb-4">Complete Your Profile</h2>
+            <p class="text-center mb-4">Please provide some basic information to help us personalize your experience.</p>
+            
+            <form method="POST">
+              {% csrf_token %}
+              <div class="form-fields">
+                {% for field in form %}
+                <div class="field-container">
+                  <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% if field.errors %}
+                    <div class="text-danger">
+                      {{ field.errors }}
+                    </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              <button type="submit" class="btn btn-warning mt-3">Save Profile</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-fields input, .form-fields textarea {
+    width: 100%;
+    padding: 10px;
+    background-color: white !important;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: black !important;
+  }
+
+  .form-fields input:focus, .form-fields textarea:focus {
+    background-color: white !important;
+    color: black !important;
+    border-color: #F8C424;
+    box-shadow: 0 0 0 2px rgba(248, 196, 36, 0.2);
+  }
+
+  .form-fields label {
+    color: #ccc;
+    text-align: left;
+    display: block;
+    margin-bottom: 8px; /* Space between label and input */
+  }
+
+  .field-container {
+    margin-bottom: 16px; /* Consistent spacing between fields */
+  }
+
+  .form-fields .form-text {
+    margin-top: 4px; /* Space between input and help text */
+  }
+
+  .form-fields .text-danger {
+    margin-top: 4px; /* Space between input and error message */
+  }
+</style>
+{% endblock content %}

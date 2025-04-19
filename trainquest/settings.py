@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'home.apps.HomeConfig',
     'dashboard.apps.DashboardConfig',
+    'accounts'
 ]
 
 # Optimize middleware by only including necessary middleware
@@ -48,7 +49,7 @@ ROOT_URLCONF = 'trainquest.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'trainquest/templates')],
+        'DIRS': [BASE_DIR / 'trainquest/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -135,3 +136,11 @@ LOGGING = {
         },
     },
 }
+
+# Email configuration for password reset
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'fitjacket12@gmail.com'
+EMAIL_HOST_PASSWORD = 'tdyl dgnw nsfe vzft'

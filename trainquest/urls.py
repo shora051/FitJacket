@@ -5,4 +5,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls')),  # home page routing
     path('dashboard/', include('dashboard.urls')),  # dashboard routing
+    path('accounts/', include('accounts.urls')),  # accounts routing
 ]
