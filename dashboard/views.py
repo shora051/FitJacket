@@ -13,7 +13,7 @@ EXERCISE_API_KEY = os.environ.get('EXERCISE_API_KEY', "a25fee685dmsha071584739ac
 def dashboard(request):
     return render(request, 'dashboard/dashboard.html')
 
-def exercises(request):
+def learn(request):
     context = {
         'title': 'Learn Exercises'
     }

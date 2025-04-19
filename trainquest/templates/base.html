@@ -1,69 +1,84 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>FitJacket</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  </head>
+  <body>
     <nav class="navbar">
-        <a href="{% url 'home.index' %}">
-            <img src="{% static 'img/FitJacketLogo.png' %}" alt="FitJacket Logo" class="logo">
-        </a>
-<!-- In the nav-links div -->
-<div class="nav-links">
-  <a href="{% url 'home.about' %}">About</a>
-  <a href="{% url 'dashboard.exercises' %}">Exercises</a>
-  <a href="#">My Profile</a>
-</div>
+      <a href="{% url 'home.index' %}">
+        <img
+          src="{% static 'img/FitJacketLogo.png' %}"
+          alt="FitJacket Logo"
+          class="logo" />
+      </a>
+      <div class="nav-links">
+        <a href="{% url 'home.about' %}">About</a>
+        <a href="{% url 'dashboard.learn' %}">Learn</a>
+        <a href="#">My Profile</a>
+      </div>
     </nav>
 
     <main>
-        {% block content %}
-        <!-- page-specific content goes here -->
-        {% endblock %}
+      {% block content %}
+      <!-- page-specific content goes here -->
+      {% endblock %}
     </main>
     <footer class="footer-section">
-  <div class="footer-content-wrapper">
-    <!-- Left column -->
-    <div class="footer-left">
-      <h5 class="footer-heading">FITJACKET</h5>
-      <hr class="footer-divider" />
-      <p class="footer-text">
-        Built for those ready to commit and grow, FitJacket makes every step of your fitness journey feel purposeful. Simple, powerful, and tailored to you — it's all about progress that lasts.
-      </p>
-    </div>
+      <div class="footer-content-wrapper">
+        <!-- Left column -->
+        <div class="footer-left">
+          <h5 class="footer-heading">FITJACKET</h5>
+          <hr class="footer-divider" />
+          <p class="footer-text">
+            Built for those ready to commit and grow, FitJacket makes every step
+            of your fitness journey feel purposeful. Simple, powerful, and
+            tailored to you — it's all about progress that lasts.
+          </p>
+        </div>
 
-    <!-- Right column -->
-    <div class="footer-right">
-      <h5 class="footer-heading">CONTACT</h5>
-      <hr class="footer-divider" />
-      <p class="footer-text">Atlanta, GA 30332</p>
-      <p class="footer-text"><a href="mailto:support@fitjacket.com" class="footer-link">support@fitjacket.com</a></p>
-      <p class="footer-text">+1 800-FIT-JACK</p>
-    </div>
-  </div>
+        <!-- Right column -->
+        <div class="footer-right">
+          <h5 class="footer-heading">CONTACT</h5>
+          <hr class="footer-divider" />
+          <p class="footer-text">Atlanta, GA 30332</p>
+          <p class="footer-text">
+            <a href="mailto:support@fitjacket.com" class="footer-link"
+              >support@fitjacket.com</a
+            >
+          </p>
+          <p class="footer-text">+1 800-FIT-JACK</p>
+        </div>
+      </div>
 
-  <div class="footer-bottom">
-  <div class="footer-credits">
-  Designed by:
-  <a href="https://www.linkedin.com/in/sahilhora/" target="_blank">Sahil Hora</a>,
-  <a href="https://www.linkedin.com/in/taran-puvvala/" target="_blank">Taran Puvvala</a>,
-  <a href="https://www.linkedin.com/in/neilm27/" target="_blank">Neil Mehta</a>,
-  <a href="https://www.linkedin.com/in/sahil-ravani/" target="_blank">Sahil Ravani</a>,
-  <a href="https://www.linkedin.com/in/surya-atmuri-7b9232292/" target="_blank">Surya Atmuri</a>
-</div>
-  <div class="footer-copyright">
-    © Copyright - 2024
-  </div>
-</div>
-
-</footer>
-
-</body>
+      <div class="footer-bottom">
+        <div class="footer-credits">
+          Designed by:
+          <a href="https://www.linkedin.com/in/sahilhora/" target="_blank"
+            >Sahil Hora</a
+          >,
+          <a href="https://www.linkedin.com/in/taran-puvvala/" target="_blank"
+            >Taran Puvvala</a
+          >,
+          <a href="https://www.linkedin.com/in/neilm27/" target="_blank"
+            >Neil Mehta</a
+          >,
+          <a href="https://www.linkedin.com/in/sahil-ravani/" target="_blank"
+            >Sahil Ravani</a
+          >,
+          <a
+            href="https://www.linkedin.com/in/surya-atmuri-7b9232292/"
+            target="_blank"
+            >Surya Atmuri</a
+          >
+        </div>
+        <div class="footer-copyright">© Copyright - 2024</div>
+      </div>
+    </footer>
+  </body>
 </html>
-
-
