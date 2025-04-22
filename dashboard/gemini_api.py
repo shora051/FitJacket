@@ -38,15 +38,23 @@ def get_gemini_response(query):
     logger.info(f"Sending query to Gemini API: '{query}'")
     
     try:
-        # Configure the model
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Configure the model with response token limit
+        generation_config = {
+            "max_output_tokens": 100,  # Limit to 100 tokens for brief responses
+            "temperature": 0.7,
+        }
+        
+        model = genai.GenerativeModel(
+            'gemini-1.5-flash', 
+            generation_config=generation_config
+        )
         
         # Set up a fitness-focused system prompt
         system_prompt = """
         You are FitJacket's fitness assistant. Provide helpful, concise advice on fitness, 
-        workouts, exercises, nutrition, and recovery. Keep responses under 150 words, 
+        workouts, exercises, nutrition, and recovery. Keep responses under 50 words, 
         focus on evidence-based information, and avoid medical advice. 
-        Be friendly and encouraging.
+        Be friendly and encouraging but extremely brief and to the point.
         """
         
         # Create chat with system prompt
@@ -57,7 +65,7 @@ def get_gemini_response(query):
             },
             {
                 "role": "model", 
-                "parts": [{"text": "I'll be your friendly fitness assistant, providing concise, evidence-based advice about workouts, exercises, nutrition, and recovery. How can I help you today?"}]
+                "parts": [{"text": "I'll be your fitness assistant. How can I help today?"}]
             }
         ])
         
@@ -91,5 +99,5 @@ def get_gemini_response(query):
 # Fallback responses if Gemini API is unavailable
 FALLBACK_RESPONSES = {
     "hello": "Hello! I'm your FitJacket assistant. How can I help with your fitness journey today?",
-    "general": "I'm your FitJacket fitness assistant! You can ask me about workouts, specific exercises, nutrition, recovery, or fitness tips."
+    "general": "I'm your FitJacket fitness assistant! You can ask me about workouts, specific exercises, nutrition, or fitness tips."
 }

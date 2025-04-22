@@ -7,7 +7,7 @@ import logging
 from django.http import JsonResponse
 from .gemini_api import get_gemini_response, FALLBACK_RESPONSES, logger
 from django.contrib.auth.decorators import login_required
-from .models import Workout, Exercise
+from .models import Workout, Exercise, FavoriteExercise
 
 # ExerciseDB API key from environment variables
 EXERCISE_API_KEY = os.environ.get('EXERCISE_API_KEY', "a25fee685dmsha071584739ac939p10cfb9jsnd120e60f1348")
@@ -295,3 +295,91 @@ def add_exercise_to_workout(request, workout_id):
             return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+@login_required
+def favorite_exercise(request):
+    """Add or remove an exercise from user's favorites"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            exercise_data = data.get('exercise', {})
+            action = data.get('action', 'add')  # 'add' or 'remove'
+
+            if not exercise_data or 'name' not in exercise_data:
+                return JsonResponse({"error": "Invalid exercise data"}, status=400)
+
+            if action == 'add':
+                # Add to favorites (using get_or_create to handle duplicates)
+                favorite, created = FavoriteExercise.objects.get_or_create(
+                    user=request.user,
+                    name=exercise_data['name'],
+                    defaults={
+                        'body_part': exercise_data.get('bodyPart'),
+                        'equipment': exercise_data.get('equipment'),
+                        'target': exercise_data.get('target'),
+                        'gif_url': exercise_data.get('gifUrl')
+                    }
+                )
+
+                message = "Exercise added to favorites" if created else "Exercise already in favorites"
+                return JsonResponse({
+                    "success": True,
+                    "message": message,
+                    "is_favorite": True
+                })
+
+            elif action == 'remove':
+                # Remove from favorites
+                try:
+                    favorite = FavoriteExercise.objects.get(
+                        user=request.user,
+                        name=exercise_data['name']
+                    )
+                    favorite.delete()
+                    return JsonResponse({
+                        "success": True,
+                        "message": "Exercise removed from favorites",
+                        "is_favorite": False
+                    })
+                except FavoriteExercise.DoesNotExist:
+                    return JsonResponse({
+                        "success": False,
+                        "message": "Exercise not in favorites",
+                        "is_favorite": False
+                    })
+
+            return JsonResponse({"error": "Invalid action"}, status=400)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
+
+
+@login_required
+def get_favorite_exercises(request):
+    """Get a list of all user's favorite exercises"""
+    favorites = FavoriteExercise.objects.filter(user=request.user)
+
+    favorite_list = [{
+        'id': fav.id,
+        'name': fav.name,
+        'bodyPart': fav.body_part,
+        'equipment': fav.equipment,
+        'target': fav.target,
+        'gifUrl': fav.gif_url,
+        'added_at': fav.added_at.isoformat()
+    } for fav in favorites]
+
+    return JsonResponse(favorite_list, safe=False)
+
+
+@login_required
+def is_favorite_exercise(request, exercise_name):
+    """Check if an exercise is in user's favorites"""
+    try:
+        FavoriteExercise.objects.get(user=request.user, name=exercise_name)
+        return JsonResponse({"is_favorite": True})
+    except FavoriteExercise.DoesNotExist:
+        return JsonResponse({"is_favorite": False})

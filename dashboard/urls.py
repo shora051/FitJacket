@@ -14,4 +14,9 @@ urlpatterns = [
     path('api/workouts/<int:workout_id>/', views.get_workout_details, name='get_workout_details'),
     path('api/workouts/<int:workout_id>/add-exercise/', views.add_exercise_to_workout, name='add_exercise_to_workout'),
     path('calendar/', views.calendar_view, name='dashboard.calendar'),
+    
+    # Favorite exercise endpoints
+    path('api/favorites/', views.favorite_exercise, name='favorite_exercise'),
+    path('api/favorites/list/', views.get_favorite_exercises, name='get_favorite_exercises'),
+    path('api/favorites/check/<str:exercise_name>/', views.is_favorite_exercise, name='is_favorite_exercise'),
 ]
