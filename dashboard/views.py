@@ -13,6 +13,11 @@ from .models import Workout, Exercise
 EXERCISE_API_KEY = os.environ.get('EXERCISE_API_KEY', "a25fee685dmsha071584739ac939p10cfb9jsnd120e60f1348")
 
 
+@login_required
+def calendar_view(request):
+    return render(request, 'dashboard/calendar.html')
+
+
 def dashboard(request):
     return render(request, 'dashboard/dashboard.html')
 

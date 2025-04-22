@@ -13,4 +13,5 @@ urlpatterns = [
     path('api/workouts/<int:workout_id>/delete/', views.delete_workout, name='delete_workout'),
     path('api/workouts/<int:workout_id>/', views.get_workout_details, name='get_workout_details'),
     path('api/workouts/<int:workout_id>/add-exercise/', views.add_exercise_to_workout, name='add_exercise_to_workout'),
+    path('calendar/', views.calendar_view, name='dashboard.calendar'),
 ]

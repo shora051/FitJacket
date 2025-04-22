@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
+
+    <div class="container-fluid mt-4">
+        <h1 class="text-center mb-4">Calendar</h1>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <!-- Calendar Component -->
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the calendar
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: [
+                    // Example events
+                    {
+                        title: 'Event 1',
+                        start: '2023-11-01'
+                    },
+                    {
+                        title: 'Event 2',
+                        start: '2023-11-07',
+                        end: '2023-11-10'
+                    }
+                ]
+            });
+            calendar.render();
+        });
+    </script>
+{% endblock %}
