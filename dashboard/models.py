@@ -66,11 +66,17 @@ class FavoriteExercise(models.Model):
 
 class WorkoutLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    workout = models.ForeignKey(Workout, on_delete=models.CASCADE)
+    workout = models.ForeignKey(
+        Workout,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
     date = models.DateField()
 
     def __str__(self):
-        return f"{self.workout.name} on {self.date} by {self.user.username}"
+        name = self.workout.name if self.workout else "Rest"
+        return f"{name!r} on {self.date} by {self.user.username}"
 
 
 class HealthLog(models.Model):

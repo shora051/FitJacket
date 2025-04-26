@@ -50,7 +50,7 @@ def signup(request):
 def profile_setup(request):
     try:
         profile = UserProfile.objects.get(user=request.user)
-        return redirect('home.index')  # Redirect if profile exists
+        return redirect('dashboard.index')  # Redirect to the dashboard if the profile already exists
     except UserProfile.DoesNotExist:
         pass
 
@@ -60,7 +60,7 @@ def profile_setup(request):
             profile = form.save(commit=False)
             profile.user = request.user
             profile.save()
-            return redirect('home.index')
+            return redirect('dashboard.index')  # Redirect to the dashboard after profile setup
     else:
         form = UserProfileForm()
 

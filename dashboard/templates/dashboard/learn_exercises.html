@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% load static %} {% block content %}
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
 <link
   rel="stylesheet"
   href="{% static 'dashboard/css/learn_exercises.css' %}" />
@@ -22,16 +24,6 @@
           Search for exercises to see demonstrations and information
         </div>
       </div>
-
-      {% if user.is_authenticated %}
-      <!-- Favorites section -->
-      <div class="favorites-section">
-        <h3>My Favorite Exercises</h3>
-        <div id="favorites-list" class="favorites-list">
-          <!-- Content loaded via JS -->
-        </div>
-      </div>
-      {% endif %}
     </div>
 
     <!-- Right column: AI assistant chat -->
@@ -68,230 +60,6 @@
     const userMessageInput = document.getElementById('user-message');
     const sendMessageButton = document.getElementById('send-message');
     const chatMessages = document.getElementById('chat-messages');
-    const favoritesListContainer = document.getElementById('favorites-list');
-
-    // Store favorites status locally
-    const favoriteStatus = {};
-
-    // Load user's favorite exercises if authenticated
-    {% if user.is_authenticated %}
-    loadFavoriteExercises();
-    {% endif %}
-
-    // Function to load user's favorite exercises
-    function loadFavoriteExercises() {
-      if (!favoritesListContainer) return;
-
-      favoritesListContainer.innerHTML = `
-        <div class="loading-favorites">
-          <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
-            <div class="wheel"></div>
-            <div class="hamster">
-              <div class="hamster__body">
-                <div class="hamster__head">
-                  <div class="hamster__ear"></div>
-                  <div class="hamster__eye"></div>
-                  <div class="hamster__nose"></div>
-                </div>
-                <div class="hamster__limb hamster__limb--fr"></div>
-                <div class="hamster__limb hamster__limb--fl"></div>
-                <div class="hamster__limb hamster__limb--br"></div>
-                <div class="hamster__limb hamster__limb--bl"></div>
-                <div class="hamster__tail"></div>
-              </div>
-            </div>
-            <div class="spoke"></div>
-          </div>
-          <p>Loading your favorites...</p>
-        </div>`;
-
-      fetch('/dashboard/api/favorites/list/', {
-        method: 'GET', // Explicitly use GET
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest', // Often needed for Django request.is_ajax()
-          'X-CSRFToken': getCsrfToken(), // GET requests usually don't need CSRF, but doesn't hurt
-          'Accept': 'application/json' // Specify expected response type
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          // Log more detailed error info
-          return response.text().then(text => {
-            throw new Error(`Server responded with status: ${response.status}. Body: ${text}`);
-          });
-        }
-        return response.json();
-      })
-      .then(favorites => {
-        // Clear previous favorite status
-        Object.keys(favoriteStatus).forEach(key => delete favoriteStatus[key]);
-
-        if (!Array.isArray(favorites)) {
-            throw new Error('Invalid response format: Expected an array.');
-        }
-
-        if (favorites.length === 0) {
-          favoritesListContainer.innerHTML = '<div class="no-favorites">You have no favorite exercises yet.</div>';
-          return;
-        }
-
-        favoritesListContainer.innerHTML = '';
-
-        favorites.forEach(favorite => {
-          favoriteStatus[favorite.name] = true; // Update local status
-
-          const favoriteItem = document.createElement('div');
-          favoriteItem.className = 'favorite-item';
-
-          favoriteItem.innerHTML = `
-            <div class="favorite-name">${escapeHtml(favorite.name)}</div>
-            <div class="favorite-detail">${escapeHtml(favorite.bodyPart || '')} ${favorite.equipment ? '• ' + escapeHtml(favorite.equipment) : ''}</div>
-            <div class="favorite-actions">
-              <button class="remove-favorite-btn" data-name="${escapeHtml(favorite.name)}">Remove</button>
-              <button class="use-in-plan-btn" data-name="${escapeHtml(favorite.name)}">Use in Plan</button>
-            </div>
-          `;
-
-          favoritesListContainer.appendChild(favoriteItem);
-        });
-
-        // Update heart icons in search results if they exist
-        updateAllHeartIcons();
-
-        // Add event listeners to remove buttons
-        favoritesListContainer.querySelectorAll('.remove-favorite-btn').forEach(button => {
-          button.addEventListener('click', function() {
-            const exerciseName = this.getAttribute('data-name');
-            toggleFavorite({ name: exerciseName }, 'remove');
-          });
-        });
-
-        // Add event listeners to "Use in Plan" buttons
-        favoritesListContainer.querySelectorAll('.use-in-plan-btn').forEach(button => {
-          button.addEventListener('click', function() {
-            const exerciseName = this.getAttribute('data-name');
-            showToast(`Added ${exerciseName} to your workout plan`, 'success');
-            // Future implementation: redirect to plan creation or add to plan
-          });
-        });
-      })
-      .catch(error => {
-        console.error('Error loading favorites:', error);
-        favoritesListContainer.innerHTML = `
-          <div class="error">
-            <p>Error loading favorites: ${escapeHtml(error.message)}</p>
-            <button class="btn btn-primary mt-2 retry-favorites-btn">Retry</button>
-          </div>
-        `;
-
-        favoritesListContainer.querySelector('.retry-favorites-btn')?.addEventListener('click', loadFavoriteExercises);
-      });
-    }
-
-    // Function to toggle favorite status
-    function toggleFavorite(exercise, action) {
-      {% if user.is_authenticated %}
-      const exerciseName = exercise.name; // Get name for querying buttons
-      const heartButtons = document.querySelectorAll(`.favorite-btn[data-name="${exerciseName}"]`);
-
-      heartButtons.forEach(button => {
-        button.classList.add('loading');
-        button.disabled = true;
-      });
-
-      fetch('/dashboard/api/favorites/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({
-          exercise: exercise,  // Send the entire exercise object
-          action: action       // 'add' or 'remove'
-        })
-      })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            throw new Error(`Server responded with status: ${response.status}. Body: ${text}`);
-          });
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          // Update local favorite status
-          favoriteStatus[exerciseName] = data.is_favorite;
-
-          // Update heart icons
-          heartButtons.forEach(button => {
-            button.classList.remove('loading');
-            button.disabled = false;
-
-            if (data.is_favorite) {
-              button.classList.add('favorited', 'just-added');
-              button.innerHTML = '❤'; // Filled heart
-              button.setAttribute('title', 'Remove from favorites');
-              setTimeout(() => button.classList.remove('just-added'), 600);
-            } else {
-              button.classList.remove('favorited');
-              button.innerHTML = '🤍'; // Outline heart
-              button.setAttribute('title', 'Add to favorites');
-            }
-          });
-
-          // Reload favorites list
-          loadFavoriteExercises();
-
-          // Show success toast
-          showToast(data.message, 'success');
-        } else {
-          throw new Error(data.message || 'Unknown error occurred');
-        }
-      })
-      .catch(error => {
-        console.error('Error toggling favorite:', error);
-
-        // Reset button state
-        heartButtons.forEach(button => {
-          button.classList.remove('loading');
-          button.disabled = false;
-        });
-
-        showToast(`Failed to update favorite: ${error.message}`, 'error');
-      });
-      {% endif %}
-    }
-
-    // Function to update a specific heart icon based on local status
-    function updateHeartIcon(exerciseName) {
-        const isFavorite = favoriteStatus[exerciseName] || false;
-        const heartButtons = document.querySelectorAll(`.favorite-btn[data-name="${exerciseName}"]`);
-
-        heartButtons.forEach(button => {
-            button.classList.remove('loading', 'just-added');
-            button.disabled = false;
-            if (isFavorite) {
-                button.classList.add('favorited');
-                button.innerHTML = '❤'; // Filled heart
-                button.setAttribute('title', 'Remove from favorites');
-            } else {
-                button.classList.remove('favorited');
-                button.innerHTML = '🤍'; // Outline heart
-                button.setAttribute('title', 'Add to favorites');
-            }
-        });
-    }
-
-    // Function to update all heart icons based on local status
-    function updateAllHeartIcons() {
-        document.querySelectorAll('.favorite-btn').forEach(button => {
-            const exerciseName = button.getAttribute('data-name');
-            if (exerciseName) {
-                updateHeartIcon(exerciseName);
-            }
-        });
-    }
 
     // Function to search exercises
     function searchExercises() {
@@ -323,9 +91,7 @@
 
       fetch(`/dashboard/api/exercises/?query=${encodeURIComponent(query)}`)
         .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Server responded with status: ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`Server responded with status: ${response.status}`);
           return response.json();
         })
         .then((data) => {
@@ -335,7 +101,6 @@
             resultsContainer.innerHTML = `<div class="error">Error: ${data.error}</div>`;
             return;
           }
-
           if (data.length === 0) {
             resultsContainer.innerHTML =
               '<div class="no-results">No exercises found. Try a different search term.</div>';
@@ -347,62 +112,36 @@
             card.className = 'exercise-card';
 
             let detailsHTML = '';
-            if (exercise.bodyPart) {
-              detailsHTML += `<span class="exercise-detail">Body Part: ${exercise.bodyPart}</span>`;
-            }
-            if (exercise.equipment) {
-              detailsHTML += `<span class="exercise-detail">Equipment: ${exercise.equipment}</span>`;
-            }
-            if (exercise.target) {
-              detailsHTML += `<span class="exercise-detail">Target: ${exercise.target}</span>`;
-            }
-
-            const isFavorite = favoriteStatus[exercise.name] || false;
-            const heartClass = isFavorite ? 'favorite-btn favorited' : 'favorite-btn';
-            const heartTitle = isFavorite ? 'Remove from favorites' : 'Add to favorites';
-            const heartSymbol = isFavorite ? '❤' : '🤍';
+            if (exercise.bodyPart) detailsHTML += `<span class="exercise-detail">Body Part: ${exercise.bodyPart}</span>`;
+            if (exercise.equipment) detailsHTML += `<span class="exercise-detail">Equipment: ${exercise.equipment}</span>`;
+            if (exercise.target) detailsHTML += `<span class="exercise-detail">Target: ${exercise.target}</span>`;
 
             const exerciseNameEscaped = escapeHtml(exercise.name);
 
             card.innerHTML = `
-                <div class="exercise-header">
-                  <div class="exercise-name">${exerciseNameEscaped}</div>
-                  {% if user.is_authenticated %}
-                  <button class="${heartClass}" data-name="${exerciseNameEscaped}" title="${heartTitle}">${heartSymbol}</button>
-                  {% endif %}
-                </div>
-                <div class="exercise-details">${detailsHTML}</div>
-                ${
-                  exercise.gifUrl
-                    ? `<img src="${escapeHtml(exercise.gifUrl)}" alt="${exerciseNameEscaped}" class="exercise-image">`
-                    : ''
-                }
-                <div class="exercise-instructions">
-                  <details>
-                    <summary>View Instructions</summary>
-                    <ol>
-                      ${
-                        Array.isArray(exercise.instructions) && exercise.instructions.length > 0
-                          ? exercise.instructions.map(step => `<li>${escapeHtml(step)}</li>`).join('')
-                          : '<li>No detailed instructions available for this exercise.</li>'
-                      }
-                    </ol>
-                  </details>
-                </div>
-            `;
+              <div class="exercise-header">
+                <div class="exercise-name">${exerciseNameEscaped}</div>
+              </div>
+              <div class="exercise-details">${detailsHTML}</div>
+              ${
+                exercise.gifUrl
+                  ? `<img src="${escapeHtml(exercise.gifUrl)}" alt="${exerciseNameEscaped}" class="exercise-image">`
+                  : ''
+              }
+              <div class="exercise-instructions">
+                <details>
+                  <summary>View Instructions</summary>
+                  <ol>
+                    ${
+                      Array.isArray(exercise.instructions) && exercise.instructions.length > 0
+                        ? exercise.instructions.map(step => `<li>${escapeHtml(step)}</li>`).join('')
+                        : '<li>No detailed instructions available for this exercise.</li>'
+                    }
+                  </ol>
+                </details>
+              </div>`;
 
             resultsContainer.appendChild(card);
-
-            {% if user.is_authenticated %}
-            const heartButton = card.querySelector('.favorite-btn');
-            if (heartButton) {
-                heartButton.addEventListener('click', function() {
-                  const isFavorited = this.classList.contains('favorited');
-                  const action = isFavorited ? 'remove' : 'add';
-                  toggleFavorite(exercise, action);
-                });
-            }
-            {% endif %}
           });
         })
         .catch((error) => {
@@ -410,31 +149,24 @@
         });
     }
 
-    // Function to add message to chat
+    // Chatbot functions
     function addMessage(content, isUser = false) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
-
       const messageContent = document.createElement('div');
       messageContent.className = 'message-content';
       messageContent.textContent = content;
-
       messageDiv.appendChild(messageContent);
       chatMessages.appendChild(messageDiv);
-
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Function to add loading indicator
     function addLoadingIndicator() {
       const messageDiv = document.createElement('div');
       messageDiv.className = 'message bot';
       messageDiv.id = 'loading-message';
-
       const messageContent = document.createElement('div');
       messageContent.className = 'message-content';
-
-      // Create hamster wheel loader
       const hamsterHTML = `
         <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
           <div class="wheel"></div>
@@ -454,32 +186,23 @@
           </div>
           <div class="spoke"></div>
         </div>
-        <p style="margin-top: 10px; text-align: center;">Thinking...</p>
-      `;
-
+        <p style="margin-top: 10px; text-align: center;">Thinking...</p>`;
       messageContent.innerHTML = hamsterHTML;
       messageDiv.appendChild(messageContent);
       chatMessages.appendChild(messageDiv);
-
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Function to remove loading indicator
     function removeLoadingIndicator() {
       const loadingMessage = document.getElementById('loading-message');
-      if (loadingMessage) {
-        loadingMessage.remove();
-      }
+      if (loadingMessage) loadingMessage.remove();
     }
 
-    // Function to handle user messages
     function handleUserMessage() {
       const message = userMessageInput.value.trim();
       if (!message) return;
-
       addMessage(message, true);
       userMessageInput.value = '';
-
       addLoadingIndicator();
 
       fetch('/dashboard/api/chatbot/', {
@@ -493,12 +216,10 @@
         .then((response) => response.json())
         .then((data) => {
           removeLoadingIndicator();
-
           if (data.error) {
             addMessage(`Error: ${data.error}`);
             return;
           }
-
           addMessage(data.response);
         })
         .catch((error) => {
@@ -507,114 +228,28 @@
         });
     }
 
-    // Function to get CSRF token from cookies
+    // Utility functions
     function getCsrfToken() {
       const name = 'csrftoken';
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === name + '=') {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
+      let match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
     }
-
-    // Simple HTML escaping function
     function escapeHtml(unsafe) {
-        if (unsafe === null || typeof unsafe === 'undefined') return '';
-        return String(unsafe)
-             .replace(/&/g, "&amp;")
-             .replace(/</g, "&lt;")
-             .replace(/>/g, "&gt;")
-             .replace(/"/g, "&quot;")
-             .replace(/'/g, "&#039;");
-     }
-
-    // Function to show toast notifications
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+      if (unsafe == null) return '';
+      return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     // Event listeners
     searchButton.addEventListener('click', searchExercises);
-    searchInput.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') searchExercises();
-    });
-
+    searchInput.addEventListener('keypress', e => { if (e.key === 'Enter') searchExercises(); });
     sendMessageButton.addEventListener('click', handleUserMessage);
-    userMessageInput.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') handleUserMessage();
-    });
-
-    // Toast and other dynamic styles
-    const style = document.createElement('style');
-    style.textContent = `
-      .toast {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 12px 20px;
-        border-radius: 4px;
-        color: white;
-        font-weight: bold;
-        z-index: 1000;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        opacity: 0.9;
-      }
-      .toast-error {
-        background-color: #e74c3c;
-      }
-      .toast-success {
-          background-color: #2ecc71;
-      }
-      .toast-info {
-          background-color: #3498db;
-      }
-      .favorite-btn.loading {
-        cursor: default;
-        opacity: 0.5;
-        animation: pulse-simple 1s infinite alternate;
-      }
-      @keyframes pulse-simple {
-          from { transform: scale(1); }
-          to { transform: scale(1.1); }
-      }
-      .retry-favorites-btn {
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-      .retry-favorites-btn:hover {
-          background-color: #3a7bc8;
-      }
-      .loader {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
+    userMessageInput.addEventListener('keypress', e => { if (e.key === 'Enter') handleUserMessage(); });
   });
 </script>
 {% endblock %}
+

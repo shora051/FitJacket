@@ -50,6 +50,13 @@ class UserProfileForm(forms.ModelForm):
             'bio': 'Fitness Goal',
         }
         help_texts = {
-            'height': None,  # Remove help text for height
-            'weight': None,  # Remove help text for weight
+            'height': None,
+            'weight': None,
         }
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        # Make all fields required except for 'bio'
+        for field_name in ['first_name', 'last_name', 'age', 'height', 'weight']:
+            self.fields[field_name].required = True
+        self.fields['bio'].required = False  # Fitness Goal is optional

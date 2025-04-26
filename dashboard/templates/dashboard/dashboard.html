@@ -2,19 +2,52 @@
 {% load static %}
 
 {% block content %}
-    <h1>Dashboard</h1>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; justify-items: center;">
-        <div style="width: 100px; height: 100px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">Box 1</div>
-        <button onclick="location.href='{% url 'dashboard.learn' %}'" style="width: 100px; height: 100px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-            Learn
-        </button>
-        <button onclick="location.href='/dashboard/createPlan'" style="width: 100px; height: 100px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-            Create Plan
-        </button>
-        <button onclick="location.href='{% url 'dashboard.calendar' %}'" style="width: 100px; height: 100px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-            Calendar
-        </button>
-        <div style="grid-column: 1 / 3; width: 100px; height: 100px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">Box 4</div>
-        <div style="grid-column: 2 / 4; width: 100px; height: 100px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">Box 5</div>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Dashboard</h1>
+    <div class="row text-center">
+        <!-- Learn Exercises -->
+        <div class="col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h3>Learn Exercises</h3>
+                    <p>Discover and learn new exercises with Gemini & ExerciseDB.</p>
+                    <a href="{% url 'dashboard.learn' %}" class="btn btn-warning">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Plan -->
+        <div class="col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h3>Create Plan</h3>
+                    <p>Build your personalized workout plan.</p>
+                    <a href="/dashboard/createPlan" class="btn btn-warning">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workout Calendar -->
+        <div class="col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h3>Workout Calendar</h3>
+                    <p>View and manage your workout schedule.</p>
+                    <a href="{% url 'dashboard.calendar' %}" class="btn btn-warning">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workout Log -->
+        <div class="col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h3>Workout Log</h3>
+                    <p>Track your workout history and progress.</p>
+                    <a href="{% url 'dashboard.health_history' %}" class="btn btn-warning">Go</a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}

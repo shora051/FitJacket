@@ -1,4 +1,7 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
 <div class="p-3 mt-4">
   <div class="container">
     <div class="row justify-content-center">
@@ -7,38 +10,25 @@
           <div class="card-body">
             <h2 class="text-center mb-4">Login</h2>
             {% if template_data.error_message %}
-            <div class="alert alert-danger text-center mb-3">
-              {{ template_data.error_message }}
-            </div>
+              <div class="alert alert-danger text-center mb-3">
+                {{ template_data.error_message }}
+              </div>
             {% endif %}
             <form method="POST">
               {% csrf_token %}
               <div class="form-fields">
                 <div class="mb-3">
                   <label for="id_username" class="form-label">Username:</label>
-                  <input
-                    type="text"
-                    name="username"
-                    id="id_username"
-                    class="form-control" />
+                  <input type="text" name="username" id="id_username" class="form-control">
                 </div>
                 <div class="mb-3">
                   <label for="id_password" class="form-label">Password:</label>
-                  <input
-                    type="password"
-                    name="password"
-                    id="id_password"
-                    class="form-control" />
+                  <input type="password" name="password" id="id_password" class="form-control">
                 </div>
               </div>
-              <div
-                class="d-flex justify-content-between align-items-center mt-3">
+              <div class="d-flex justify-content-between align-items-center mt-3">
                 <button type="submit" class="btn btn-warning">Login</button>
-                <a
-                  href="{% url 'accounts.password_reset' %}"
-                  class="btn btn-warning text-dark"
-                  >Forgot Password?</a
-                >
+                <a href="{% url 'accounts.password_reset' %}" class="btn btn-warning text-dark">Forgot Password?</a>
               </div>
             </form>
           </div>
@@ -50,33 +40,20 @@
 
 <style>
   .form-fields input {
-    margin: 30px;
-    background: none;
-    border: none;
-    outline: none;
-    max-width: 190px;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 9999px;
-    box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
-    color: #fff;
     width: 100%;
-    margin: 0 0 10px 0;
+    padding: 8px;
+    margin-bottom: 10px;
+    background-color: white !important;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: black !important;
   }
-
+  
   .form-fields label {
     color: #ccc;
     text-align: left;
     display: block;
     margin-bottom: 5px;
-  }
-
-  .form-fields input:focus {
-    background-color: transparent !important;
-    color: white !important;
-    border-color: #f8c424;
-    box-shadow: inset 2px 5px 10px rgb(5, 5, 5),
-      0 0 0 2px rgba(248, 196, 36, 0.2);
   }
 
   .alert-danger {

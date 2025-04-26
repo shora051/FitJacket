@@ -1,245 +1,320 @@
 {% extends "base.html" %}
 {% load static %}
 
+
 {% block content %}
+
 
 <body style="background-color: #1d1f23;">
 
+
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
 
 <div class="container-fluid mt-4">
-    <h1 class="text-center mb-4" style="color: #FFFFFF;">Calendar</h1>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card bg-dark text-white">
-                <div class="card-body">
-                    <div id="calendar"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+ <h1 class="text-center mb-4" style="color: #FFFFFF;">Calendar</h1>
+ <div class="row">
+   <div class="col-md-12">
+     <div class="card bg-dark text-white">
+       <div class="card-body">
+         <div id="calendar"></div>
+       </div>
+     </div>
+   </div>
+ </div>
 </div>
 
-<!-- Modal -->
-<!-- Modal -->
+
+<!-- Workout / Health Log Modal -->
 <div class="modal fade" id="workoutModal" tabindex="-1" aria-labelledby="workoutModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark text-white">
-      <div class="modal-header">
-        <h5 class="modal-title" id="workoutModalLabel">Log for <span id="selected-date"></span></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-
-        <ul class="nav nav-tabs" id="logTabs" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="workout-tab" data-bs-toggle="tab" data-bs-target="#workout" type="button" role="tab">Workout</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="health-tab" data-bs-toggle="tab" data-bs-target="#health" type="button" role="tab">Health</button>
-          </li>
-        </ul>
-
-        <div class="tab-content mt-3">
-          <!-- Workout Tab -->
-          <div class="tab-pane fade show active" id="workout" role="tabpanel">
-            {% if workouts %}
-              <form id="logWorkoutForm">
-                  <div class="mb-3">
-                      <label for="workoutSelect" class="form-label">Select a saved workout:</label>
-                      <select id="workoutSelect" class="form-select text-dark" required>
-                          <option value="" disabled selected>Select workout</option>
-                          {% for workout in workouts %}
-                              <option value="{{ workout.id }}">{{ workout.name }}</option>
-                          {% endfor %}
-                      </select>
-                  </div>
-                  <button type="submit" class="btn btn-success">Log Workout</button>
-              </form>
-            {% else %}
-              <p>No saved workouts found.</p>
-            {% endif %}
-          </div>
-
-          <!-- Health Tab -->
-          <div class="tab-pane fade" id="health" role="tabpanel">
-            <form id="logHealthForm">
-                <div class="mb-3">
-                    <label for="caloriesInput" class="form-label">Calories (kcal):</label>
-                    <input type="number" class="form-control text-dark" id="caloriesInput" placeholder="Enter calories burned" min="0" required>
-                </div>
-                <div class="mb-3">
-                    <label for="cardioInput" class="form-label">Cardio Time (minutes):</label>
-                    <input type="number" class="form-control text-dark" id="cardioInput" placeholder="Enter cardio time" min="0" required>
-                </div>
-
-                <div class="mb-3">
-    <label for="notesInput" class="form-label">Personal Notes:</label>
-    <textarea class="form-control text-dark" id="notesInput" rows="2" placeholder="How did you feel today?"></textarea>
+ <div class="modal-dialog modal-dialog-centered">
+   <div class="modal-content bg-dark text-white">
+     <div class="modal-header">
+       <h5 class="modal-title" id="workoutModalLabel">Log for <span id="selected-date"></span></h5>
+       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+     </div>
+     <div class="modal-body">
+       <ul class="nav nav-tabs" id="logTabs" role="tablist">
+         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#workout" type="button">Workout</button></li>
+         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#health" type="button">Health</button></li>
+       </ul>
+       <div class="tab-content mt-3">
+         <div id="workout" class="tab-pane fade show active">
+           {% if workouts %}
+             <form id="logWorkoutForm">
+               <div class="mb-3">
+                 <label for="workoutSelect" class="form-label">Select a saved workout:</label>
+                 <select id="workoutSelect" class="form-select text-dark" required>
+                   <option value="rest" selected>Rest</option>
+                   {% for workout in workouts %}
+                     <option value="{{ workout.id }}">{{ workout.name }}</option>
+                   {% endfor %}
+                 </select>
+               </div>
+               <button type="submit" class="btn btn-success">Save Workout</button>
+             </form>
+           {% else %}
+             <p>No saved workouts found.</p>
+           {% endif %}
+         </div>
+         <div id="health" class="tab-pane fade">
+           <form id="logHealthForm">
+             <div class="mb-3">
+               <label for="caloriesInput" class="form-label">Calories (kcal):</label>
+               <input type="number" id="caloriesInput" class="form-control text-dark" min="0" required>
+             </div>
+             <div class="mb-3">
+               <label for="cardioInput" class="form-label">Cardio Time (minutes):</label>
+               <input type="number" id="cardioInput" class="form-control text-dark" min="0" required>
+             </div>
+             <div class="mb-3">
+               <label for="notesInput" class="form-label">Personal Notes:</label>
+               <textarea id="notesInput" class="form-control text-dark" rows="2"></textarea>
+             </div>
+             <button type="submit" class="btn btn-primary">Log Health Stats</button>
+           </form>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
 </div>
 
-
-
-
-                <button type="submit" class="btn btn-primary">Log Health Stats</button>
-            </form>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Health Log View Modal -->
 <div class="modal fade" id="viewHealthModal" tabindex="-1" aria-labelledby="viewHealthModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark text-white">
-      <div class="modal-header">
-        <h5 class="modal-title" id="viewHealthModalLabel">Health Log for <span id="healthDate"></span></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p><strong>Calories:</strong> <span id="viewCalories"></span></p>
-        <p><strong>Cardio Time:</strong> <span id="viewCardio"></span> minutes</p>
-        <p><strong>Notes:</strong> <span id="viewNotes"></span></p>
-
-      </div>
-    </div>
-  </div>
+ <div class="modal-dialog modal-dialog-centered">
+   <div class="modal-content bg-dark text-white">
+     <div class="modal-header">
+       <h5 class="modal-title" id="viewHealthModalLabel">Health Log for <span id="healthDate"></span></h5>
+       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+     </div>
+     <div class="modal-body">
+       <p><strong>Calories:</strong> <span id="viewCalories"></span></p>
+       <p><strong>Cardio Time:</strong> <span id="viewCardio"></span> minutes</p>
+       <p><strong>Notes:</strong> <span id="viewNotes"></span></p>
+     </div>
+   </div>
+ </div>
 </div>
 
 
 <style>
-    #calendar {
-        max-width: 900px;
-        margin: 0 auto;
-        background-color: #1e1e1e;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
+ #calendar {
+   max-width: 900px;
+   margin: 0 auto;
+   background-color: #1e1e1e;
+   padding: 20px;
+   border-radius: 12px;
+   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+ }
+ /* delete icon styling */
+ .delete-marker {
+   position: absolute;
+   top: 2px;
+   right: 4px;
+   font-size: 12px;
+   color: #e74c3c;
+   background: rgba(255,255,255,0.2);
+   border-radius: 50%;
+   width: 16px;
+   height: 16px;
+   text-align: center;
+   line-height: 16px;
+   display: none;
+ }
+ /* show only on workout events */
+ .fc-event:hover .delete-marker {
+   display: block;
+ }
 </style>
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const calendarEl = document.getElementById('calendar');
+ const calendarEl = document.getElementById('calendar');
+ const calendar = new FullCalendar.Calendar(calendarEl, {
+   initialView: 'dayGridMonth',
+   headerToolbar: {
+     left: 'prev,next today',
+     center: 'title',
+     right: ''
+   },
+   events: {{ events|safe }},
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: {{ events|safe }},
-        
-        dateClick: function(info) {
-            document.getElementById('selected-date').textContent = info.dateStr;
-            const modal = new bootstrap.Modal(document.getElementById('workoutModal'));
-            modal.show();
-        },
 
-        eventClick: function(info) {
-            const event = info.event;
+   dateClick: function(info) {
+     document.getElementById('selected-date').textContent = info.dateStr;
+     new bootstrap.Modal(document.getElementById('workoutModal')).show();
+   },
 
-            if (event.extendedProps.isHealth) {
-                // Populate the view-only modal with extendedProps
-                document.getElementById('healthDate').textContent = event.extendedProps.date;
-                document.getElementById('viewCalories').textContent = event.extendedProps.calories;
-                document.getElementById('viewCardio').textContent = event.extendedProps.cardio;
-                document.getElementById('viewNotes').textContent = event.extendedProps.notes || 'No notes';
 
-                const viewModal = new bootstrap.Modal(document.getElementById('viewHealthModal'));
-                viewModal.show();
+   eventDidMount: function(info) {
+     // only add delete-icon for non-health events
+     if (!info.event.extendedProps.isHealth) {
+       info.el.style.position = 'relative';
+       const btn = document.createElement('span');
+       btn.className = 'delete-marker';
+       btn.innerHTML = '×';
+       info.el.appendChild(btn);
+     }
+   },
+
+
+   eventClick: function(info) {
+     const event = info.event;
+
+
+     // --- HEALTH EVENT CLICK: show details ---
+     if (event.extendedProps.isHealth) {
+       document.getElementById('healthDate').textContent = event.extendedProps.date;
+       document.getElementById('viewCalories').textContent = event.extendedProps.calories;
+       document.getElementById('viewCardio').textContent = event.extendedProps.cardio;
+       document.getElementById('viewNotes').textContent = event.extendedProps.notes;
+       new bootstrap.Modal(document.getElementById('viewHealthModal')).show();
+       return;
+     }
+
+
+     // --- WORKOUT EVENT CLICK: delete workout ---
+     if (confirm(`Delete workout "${event.title}" on ${event.startStr}?`)) {
+       fetch('/dashboard/api/delete-workout-log/', {
+         method: 'DELETE',
+         headers: {
+           'Content-Type': 'application/json',
+           'X-CSRFToken': getCsrfToken()
+         },
+         body: JSON.stringify({ id: event.id })
+       })
+       .then(res => res.json())
+       .then(data => {
+         if (data.success) {
+           event.remove();
+         } else {
+           alert('Error deleting workout: ' + (data.error || 'Unknown'));
+         }
+       })
+       .catch(err => {
+         console.error('Delete error:', err);
+         alert('Failed to delete workout.');
+       });
+     }
+   }
+ });
+
+
+ calendar.render();
+
+
+ // --- LOG WORKOUT FORM ---
+ document.getElementById('logWorkoutForm').addEventListener('submit', function(e) {
+   e.preventDefault();
+   const workoutId = document.getElementById('workoutSelect').value;
+   const date = document.getElementById('selected-date').textContent;
+   if (!workoutId || !date) {
+     alert('Please select a workout and date.');
+     return;
+   }
+   fetch("{% url 'log_workout' %}", {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+       'X-CSRFToken': getCsrfToken()
+     },
+     body: JSON.stringify({ workout_id: workoutId, date: date })
+   })
+   .then(r => r.json())
+   .then(data => {
+     if (data.success) {
+       calendar.addEvent(data.event);
+       bootstrap.Modal.getInstance(document.getElementById('workoutModal')).hide();
+     } else {
+       alert('Error logging workout: ' + data.error);
+     }
+   })
+   .catch(err => {
+     console.error('Error logging workout:', err);
+     alert('An error occurred while logging the workout.');
+   });
+ });
+
+
+ // --- LOG HEALTH FORM ---
+ document.getElementById('logHealthForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const date     = document.getElementById('selected-date').textContent;
+    const calories = document.getElementById('caloriesInput').value;
+    const cardio   = document.getElementById('cardioInput').value;
+    const notes    = document.getElementById('notesInput').value;
+
+    fetch('/dashboard/log-health/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken()
+      },
+      body: JSON.stringify({
+        date:           date,
+        calories:       calories,
+        cardio_minutes: cardio,
+        notes:          notes
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        // look for an existing health‐marker on that date
+        const existing = calendar.getEvents().find(ev =>
+          ev.extendedProps.isHealth && ev.startStr === date
+        );
+        if (existing) {
+          // update its props
+          existing.setExtendedProp('calories', calories);
+          existing.setExtendedProp('cardio',   cardio);
+          existing.setExtendedProp('notes',    notes);
+          existing.setExtendedProp('date',     date);
+        } else {
+          // first time: add the marker
+          calendar.addEvent({
+            title: 'Tracked Health',
+            start: date,
+            color: '#2ecc71',
+            extendedProps: {
+              isHealth: true,
+              calories: calories,
+              cardio:   cardio,
+              notes:    notes,
+              date:     date
             }
+          });
         }
+        bootstrap.Modal.getInstance(
+          document.getElementById('workoutModal')
+        ).hide();
+      } else {
+        alert('Error logging health: ' + (data.message || 'Unknown'));
+      }
+    })
+    .catch(err => {
+      console.error('Error logging health:', err);
+      alert('Failed to log health stats.');
     });
+  });
 
-    calendar.render();
 
-    // Log workout form
-    const workoutForm = document.getElementById('logWorkoutForm');
-    if (workoutForm) {
-        workoutForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const workoutId = document.getElementById('workoutSelect').value;
-            const date = document.getElementById('selected-date').textContent;
-
-            if (!workoutId) {
-                alert("Please select a workout.");
-                return;
-            }
-
-            const response = await fetch("{% url 'log_workout_ajax' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}',
-                },
-                body: JSON.stringify({
-                    workout_id: workoutId,
-                    date: date
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                alert("Workout logged!");
-                bootstrap.Modal.getInstance(document.getElementById('workoutModal')).hide();
-                location.reload();
-            } else {
-                alert("Error: " + result.message);
-            }
-        });
-    }
-
-    // Log health stats form
-    const healthForm = document.getElementById('logHealthForm');
-    if (healthForm) {
-        healthForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const calories = document.getElementById('caloriesInput').value;
-            const cardioMinutes = document.getElementById('cardioInput').value;
-            const notes = document.getElementById('notesInput').value;
-            const date = document.getElementById('selected-date').textContent;
-
-            if (!calories && !cardioMinutes && !notes) {
-                alert("Please enter some health data or notes.");
-                return;
-            }
-
-            const response = await fetch("{% url 'log_health_ajax' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}',
-                },
-                body: JSON.stringify({
-                    date: date,
-                    calories: calories,
-                    cardio_minutes: cardioMinutes,
-                    notes: notes
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                alert("Health stats logged!");
-                bootstrap.Modal.getInstance(document.getElementById('workoutModal')).hide();
-                location.reload();
-            } else {
-                alert("Error: " + result.message);
-            }
-        });
-    }
+ function getCsrfToken() {
+   const name = 'csrftoken';
+   let value = null;
+   document.cookie.split(';').forEach(c => {
+     const t = c.trim();
+     if (t.startsWith(name + '=')) value = decodeURIComponent(t.slice(name.length + 1));
+   });
+   return value;
+ }
 });
 </script>
 
 
-
 {% endblock %}
+

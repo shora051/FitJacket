@@ -11,8 +11,12 @@
 <p class="subheading">FitJacket helps you turn intention into action — guiding you to build healthier habits, one step at a time. It’s designed to keep you grounded, focused, and moving forward, even on the tough days. Start where you are, stay consistent, and see just how far you can go.</p>
 
 <div class="buttons">
-    <a href="{% url 'accounts.signup' %}" class="btn">Sign up</a>
-    <a href="{% url 'accounts.login' %}" class="btn">Log in</a>
+    {% if user.is_authenticated %}
+        <a href="{% url 'dashboard.index' %}" class="btn">Go to Dashboard</a>
+    {% else %}
+        <a href="{% url 'accounts.signup' %}" class="btn">Sign up</a>
+        <a href="{% url 'accounts.login' %}" class="btn">Log in</a>
+    {% endif %}
 </div>
 {% endblock %}
 

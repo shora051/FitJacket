@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+    <div class="card-header bg-success text-white text-center">
+      <h2 class="mb-0">Edit Health Log</h2>
+      <small>{{ health_log.date }}</small>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label for="calories" class="form-label">Calories (kcal)</label>
+          <input
+            type="number"
+            id="calories"
+            name="calories"
+            class="form-control"
+            value="{{ health_log.calories }}"
+            min="0"
+            required>
+        </div>
+
+        <div class="mb-4">
+          <label for="cardio_minutes" class="form-label">Cardio Minutes</label>
+          <input
+            type="number"
+            id="cardio_minutes"
+            name="cardio_minutes"
+            class="form-control"
+            value="{{ health_log.cardio_minutes }}"
+            min="0"
+            required>
+        </div>
+
+        <div class="mb-4">
+          <label for="notes" class="form-label">Notes</label>
+          <textarea
+            id="notes"
+            name="notes"
+            class="form-control"
+            rows="4">{{ health_log.notes }}</textarea>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-success me-2 px-4">Save</button>
+          <a href="{% url 'dashboard.health_history' %}" class="btn btn-outline-secondary px-4">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
