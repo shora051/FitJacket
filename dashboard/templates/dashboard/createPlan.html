@@ -1,682 +1,651 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<link rel="stylesheet" href="{% static 'dashboard/css/create_plan.css' %}" />
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
 <div class="container-fluid mt-4">
-  <h1 class="text-center mb-4">Create Workout Plans</h1>
+    <h1 class="text-center mb-4">Create Workout Plans</h1>
 
-  <div class="row">
-    <!-- Left Column - Saved Workouts -->
-    <div class="col-md-5">
-      <div class="card bg-dark text-white">
-        <div class="card-header">
-          <h3>Saved Workouts</h3>
-        </div>
-        <div class="card-body">
-          <div id="saved-workouts-list">
-            {% for workout in workouts %}
-            <div class="workout-item mb-2" data-workout-id="{{ workout.id }}">
-              <div
-                class="d-flex justify-content-between align-items-center p-2 bg-secondary rounded">
-                <span class="workout-name">{{ workout.name }}</span>
-                <button class="btn btn-sm btn-warning view-workout">
-                  View
-                </button>
-              </div>
+    <div class="row">
+        <!-- Left Column - Saved Workouts -->
+        <div class="col-md-5">
+            <div class="card bg-dark text-white">
+                <div class="card-header">
+                    <h3>Saved Workouts</h3>
+                </div>
+                <div class="card-body">
+                    <div id="saved-workouts-list">
+                        {% for workout in workouts %}
+                        <div class="workout-item mb-2" data-workout-id="{{ workout.id }}">
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-secondary rounded">
+                                <span class="workout-name">{{ workout.name }}</span>
+                                <button class="btn btn-sm btn-warning view-workout">View</button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No workouts saved yet</p>
+                        {% endfor %}
+                    </div>
+                    <button id="create-workout-btn" class="btn btn-warning mt-3 w-100">Create Workout</button>
+                </div>
             </div>
-            {% empty %}
-            <p class="text-muted">No workouts saved yet</p>
-            {% endfor %}
-          </div>
-          <button id="create-workout-btn" class="btn btn-warning mt-3 w-100">
-            Create Workout
-          </button>
         </div>
-      </div>
 
-      <!-- Favorite Exercises Section (New) -->
-      {% if user.is_authenticated %}
-      <div class="card bg-dark text-white mt-3">
-        <div class="card-header">
-          <h3>My Favorite Exercises</h3>
+
+        <!-- Right Column -->
+        <div class="col-md-7">
+            <!-- Workout Name Section -->
+            <div id="workout-name-section" class="card bg-dark text-white mb-3" style="display: none;">
+                <div class="card-header">
+                    <h3>Create New Workout</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <input type="text" id="new-workout-name" class="form-control mb-3" placeholder="Enter workout name" required>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button class="btn btn-secondary" id="cancel-name-btn">Cancel</button>
+                            <button class="btn btn-warning" id="save-name-btn">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workout Details Section -->
+            <div id="workout-details" class="card bg-dark text-white mb-3" style="display: none;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <h3 id="workout-name-display" class="mb-0 me-2"></h3>
+                        <input type="text" id="workout-name-input" class="form-control d-none" placeholder="Enter workout name" required>
+                        <div id="name-action-buttons" class="mt-2 d-none">
+                            <button class="btn btn-success btn-sm" id="confirm-name-btn">Save</button>
+                            <button class="btn btn-secondary btn-sm" id="cancel-create-btn">Cancel</button>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-warning btn-sm" id="edit-workout-btn">Edit</button>
+                        <button class="btn btn-danger btn-sm" id="delete-workout-btn">Delete</button>
+                        <button class="btn btn-success btn-sm d-none" id="save-name-btn">Save Name</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="exercise-list"></div>
+                </div>
+            </div>
+
+
+            <!-- Exercise Search Section -->
+            <div id="exercise-search-section" class="card bg-dark text-white" style="display: none;">
+                <div class="card-header">
+                    <h3>Add New Exercises</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" id="exercise-search" class="form-control" placeholder="Search exercises...">
+                            <button class="btn btn-warning" type="button" id="search-button">Search</button>
+                        </div>
+                    </div>
+                    <div id="search-results" class="mb-3" style="max-height: 200px; overflow-y: auto;"></div>
+                    <div id="selected-exercises">
+                        <h5>Selected New Exercises:</h5>
+                        <div id="selected-exercises-list"></div>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-success" id="save-workout-btn">Save Changes</button>
+                        <button class="btn btn-secondary" id="cancel-edit-btn">Cancel</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-          <div id="favorite-exercises-list">
-            <div class="loading-favorites">Loading your favorites...</div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
     </div>
-
-    <!-- Right Column -->
-    <div class="col-md-7">
-      <!-- Workout Name Section -->
-      <div
-        id="workout-name-section"
-        class="card bg-dark text-white mb-3"
-        style="display: none">
-        <div class="card-header">
-          <h3>Create New Workout</h3>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <input
-              type="text"
-              id="new-workout-name"
-              class="form-control mb-3"
-              placeholder="Enter workout name"
-              required />
-            <div class="d-flex justify-content-end gap-2">
-              <button class="btn btn-secondary" id="cancel-name-btn">
-                Cancel
-              </button>
-              <button class="btn btn-warning" id="save-name-btn">Save</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Workout Details Section -->
-      <div
-        id="workout-details"
-        class="card bg-dark text-white mb-3"
-        style="display: none">
-        <div
-          class="card-header d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center">
-            <h3 id="workout-name-display" class="mb-0 me-2"></h3>
-            <input
-              type="text"
-              id="workout-name-input"
-              class="form-control d-none"
-              placeholder="Enter workout name"
-              required />
-            <div id="name-action-buttons" class="mt-2 d-none">
-              <button class="btn btn-success btn-sm" id="confirm-name-btn">
-                Save
-              </button>
-              <button class="btn btn-secondary btn-sm" id="cancel-create-btn">
-                Cancel
-              </button>
-            </div>
-          </div>
-          <div>
-            <button class="btn btn-warning btn-sm" id="edit-workout-btn">
-              Edit
-            </button>
-            <button class="btn btn-danger btn-sm" id="delete-workout-btn">
-              Delete
-            </button>
-            <button class="btn btn-success btn-sm d-none" id="save-name-btn">
-              Save Name
-            </button>
-          </div>
-        </div>
-        <div class="card-body">
-          <div id="exercise-list"></div>
-        </div>
-      </div>
-
-      <!-- Exercise Search Section -->
-      <div
-        id="exercise-search-section"
-        class="card bg-dark text-white"
-        style="display: none">
-        <div class="card-header">
-          <h3>Add New Exercises</h3>
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <div class="input-group">
-              <input
-                type="text"
-                id="exercise-search"
-                class="form-control"
-                placeholder="Search exercises..." />
-              <button class="btn btn-warning" type="button" id="search-button">
-                Search
-              </button>
-            </div>
-          </div>
-          <div
-            id="search-results"
-            class="mb-3"
-            style="max-height: 200px; overflow-y: auto"></div>
-          <div id="selected-exercises">
-            <h5>Selected New Exercises:</h5>
-            <div id="selected-exercises-list"></div>
-          </div>
-          <div class="mt-3">
-            <button class="btn btn-success" id="save-workout-btn">
-              Save Changes
-            </button>
-            <button class="btn btn-secondary" id="cancel-edit-btn">
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
+
+<style>
+.workout-item {
+  cursor: pointer;
+}
+
+
+.workout-item:hover {
+    opacity: 0.9;
+}
+
+
+.exercise-item {
+    background-color: #2a2a2a;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+
+.search-result {
+    cursor: default;
+    padding: 8px;
+    margin: 4px 0;
+    background-color: #2a2a2a;
+    border-radius: 4px;
+}
+
+
+.search-result:hover {
+    background-color: #3a3a3a;
+}
+
+
+.selected-exercise {
+    background-color: #1a1a1a;
+    padding: 10px;
+    margin: 5px 0;
+  border-radius: 5px;
+  display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.exercise-controls input {
+    width: 60px;
+    margin: 0 5px;
+}
+
+
+.add-exercise-btn {
+    padding: 2px 10px;
+}
+
+
+.add-exercise-btn:hover {
+    opacity: 0.9;
+}
+
+
+.exercise-item {
+  display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.exercise-controls {
+  display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.exercise-controls input {
+    width: 60px;
+    margin: 0 5px;
+}
+
+
+.edit-mode .exercise-item {
+    background-color: #1a1a1a;
+}
+
+
+.edit-mode .exercise-controls {
+    display: flex !important;
+}
+
+
+.exercise-controls {
+    display: none;
+}
+</style>
+
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-      let currentWorkoutId = null;
-      let isEditingMode = false;
-      const workoutDetails = document.getElementById('workout-details');
-      const exerciseSearchSection = document.getElementById('exercise-search-section');
-      const searchInput = document.getElementById('exercise-search');
-      const searchButton = document.getElementById('search-button');
-      const searchResults = document.getElementById('search-results');
-      const selectedExercisesList = document.getElementById('selected-exercises-list');
-      const workoutNameInput = document.getElementById('workout-name-input');
-      const workoutNameDisplay = document.getElementById('workout-name-display');
-      const editWorkoutBtn = document.getElementById('edit-workout-btn');
-      const favoriteExercisesList = document.getElementById('favorite-exercises-list');
-
-      // Load favorite exercises if user is authenticated
-      {% if user.is_authenticated %}
-      loadFavoriteExercises();
-      {% endif %}
-
-      function loadFavoriteExercises() {
-          if (!favoriteExercisesList) return;
-
-          fetch('/dashboard/api/favorites/list/')
-          .then(response => response.json())
-          .then(favorites => {
-              if (favorites.length === 0) {
-                  favoriteExercisesList.innerHTML = '<div class="no-favorites">You have no favorite exercises yet.</div>';
-                  return;
-              }
-
-              favoriteExercisesList.innerHTML = '';
-
-              // Add each favorite to the UI
-              favorites.forEach(favorite => {
-                  const favoriteItem = document.createElement('div');
-                  favoriteItem.className = 'favorite-exercise-item';
-
-                  favoriteItem.innerHTML = `
-                    <div class="favorite-exercise-name">${favorite.name}</div>
-                    <button class="btn btn-sm btn-warning add-to-workout-btn" data-name="${favorite.name}">Add to Workout</button>
-                  `;
-
-                  favoriteExercisesList.appendChild(favoriteItem);
-              });
-
-              // Add event listeners to add buttons (only visible when editing)
-              document.querySelectorAll('.add-to-workout-btn').forEach(button => {
-                  button.addEventListener('click', function() {
-                      if (!isEditingMode) {
-                          alert('Start editing a workout to add favorite exercises');
-                          return;
-                      }
-
-                      const exerciseName = this.getAttribute('data-name');
-
-                      // Show a modal/dialog to select sets and reps
-                      const setsRepsDialog = document.createElement('div');
-                      setsRepsDialog.className = 'sets-reps-dialog';
-                      setsRepsDialog.innerHTML = `
-                          <div class="sets-reps-dialog-backdrop"></div>
-                          <div class="sets-reps-dialog-content">
-                              <h4>Add ${exerciseName}</h4>
-                              <div class="sets-reps-inputs">
-                                  <div class="form-group">
-                                      <label for="sets-input">Sets:</label>
-                                      <input type="number" id="sets-input" class="form-control-sm" value="3" min="1">
-                                  </div>
-                                  <div class="form-group">
-                                      <label for="reps-input">Reps:</label>
-                                      <input type="number" id="reps-input" class="form-control-sm" value="10" min="1">
-                                  </div>
-                              </div>
-                              <div class="dialog-buttons">
-                                  <button class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
-                                  <button class="btn btn-warning btn-sm confirm-btn">Add to Workout</button>
-                              </div>
-                          </div>
-                      `;
-
-                      document.body.appendChild(setsRepsDialog);
-
-                      // Add event listeners to the dialog buttons
-                      setsRepsDialog.querySelector('.cancel-btn').addEventListener('click', () => {
-                          document.body.removeChild(setsRepsDialog);
-                      });
-
-                      setsRepsDialog.querySelector('.confirm-btn').addEventListener('click', () => {
-                          const sets = parseInt(setsRepsDialog.querySelector('#sets-input').value) || 3;
-                          const reps = parseInt(setsRepsDialog.querySelector('#reps-input').value) || 10;
-
-                          addExercise({name: exerciseName}, sets, reps);
-                          document.body.removeChild(setsRepsDialog);
-                      });
-
-                      // Close dialog when clicking outside
-                      setsRepsDialog.querySelector('.sets-reps-dialog-backdrop').addEventListener('click', () => {
-                          document.body.removeChild(setsRepsDialog);
-                      });
-                  });
-              });
-          })
-          .catch(error => {
-              console.error('Error loading favorites:', error);
-              favoriteExercisesList.innerHTML = '<div class="error">Error loading favorites. Please try again later.</div>';
-          });
-      }
-
-      // View Workout
-      document.querySelectorAll('.view-workout').forEach(button => {
-          button.addEventListener('click', function(e) {
-              e.stopPropagation();
-              const workoutItem = this.closest('.workout-item');
-              const workoutId = workoutItem.dataset.workoutId;
-              const workoutName = workoutItem.querySelector('.workout-name').textContent;
-              viewWorkout(workoutId, workoutName);
-          });
-      });
-
-
-      // Create New Workout
-      document.getElementById('create-workout-btn').addEventListener('click', function() {
-          // Show name input section, hide others
-          document.getElementById('workout-name-section').style.display = 'block';
-          document.getElementById('workout-details').style.display = 'none';
-          document.getElementById('exercise-search-section').style.display = 'none';
-
-          // Clear and focus the input
-          document.getElementById('new-workout-name').value = '';
-          document.getElementById('new-workout-name').focus();
-      });
-
-
-      // Cancel Name
-      document.getElementById('cancel-name-btn').addEventListener('click', function() {
-          document.getElementById('workout-name-section').style.display = 'none';
-      });
-
-
-      // Save Name
-      document.getElementById('save-name-btn').addEventListener('click', function() {
-          const workoutName = document.getElementById('new-workout-name').value.trim();
-
-          if (!workoutName) {
-              alert('Please enter a workout name');
-              return;
-          }
-
-          // Create new workout
-          fetch('/dashboard/api/workouts/create/', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': getCsrfToken()
-              },
-              body: JSON.stringify({
-                  name: workoutName,
-                  exercises: []
-              })
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  currentWorkoutId = data.workout_id;
-
-                  // Hide name input section
-                  document.getElementById('workout-name-section').style.display = 'none';
-
-                  // Show workout details and exercise search
-                  document.getElementById('workout-details').style.display = 'block';
-                  document.getElementById('exercise-search-section').style.display = 'block';
-
-                  // Update displays
-                  document.getElementById('workout-name-display').textContent = workoutName;
-                  document.getElementById('exercise-list').innerHTML = '<p class="text-muted">No exercises added yet</p>';
-
-                  // Add to saved workouts list
-                  const workoutsList = document.getElementById('saved-workouts-list');
-                  const workoutItem = document.createElement('div');
-                  workoutItem.className = 'workout-item mb-2';
-                  workoutItem.dataset.workoutId = data.workout_id;
-                  workoutItem.innerHTML = `
-                      <div class="d-flex justify-content-between align-items-center p-2 bg-secondary rounded">
-                          <span class="workout-name">${workoutName}</span>
-                          <button class="btn btn-sm btn-warning view-workout">View</button>
-                      </div>
-                  `;
-
-                  // Add click handler for the new View button
-                  workoutItem.querySelector('.view-workout').addEventListener('click', function(e) {
-                      e.stopPropagation();
-                      viewWorkout(data.workout_id, workoutName);
-                  });
-
-                  workoutsList.appendChild(workoutItem);
-              } else {
-                  alert('Error creating workout: ' + (data.error || 'Unknown error'));
-              }
-          });
-      });
-
-
-      // Add Enter key support for the name input
-      document.getElementById('new-workout-name').addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-              document.getElementById('save-name-btn').click();
-          }
-      });
-
-
-      // Edit Workout
-      document.getElementById('edit-workout-btn').addEventListener('click', function() {
-          isEditingMode = true;
-          const exerciseList = document.getElementById('exercise-list');
-          exerciseList.classList.add('edit-mode');
-          exerciseSearchSection.style.display = 'block';
-          selectedExercisesList.innerHTML = ''; // Clear new exercises list
-
-          // Change button text to "Editing"
-          editWorkoutBtn.textContent = 'Editing';
-          editWorkoutBtn.classList.remove('btn-warning');
-          editWorkoutBtn.classList.add('btn-success');
-          editWorkoutBtn.disabled = true;
-
-          // Show edit controls for existing exercises
-          document.querySelectorAll('.exercise-display').forEach(span => span.style.display = 'none');
-          document.querySelectorAll('.exercise-controls').forEach(div => div.style.display = 'flex');
-      });
-
-
-      // Cancel Edit
-      document.getElementById('cancel-edit-btn').addEventListener('click', function() {
-          isEditingMode = false;
-          const exerciseList = document.getElementById('exercise-list');
-          exerciseList.classList.remove('edit-mode');
-          exerciseSearchSection.style.display = 'none';
-
-          // Reset edit button
-          editWorkoutBtn.textContent = 'Edit';
-          editWorkoutBtn.classList.remove('btn-success');
-          editWorkoutBtn.classList.add('btn-warning');
-          editWorkoutBtn.disabled = false;
-
-          // Hide edit controls
-          document.querySelectorAll('.exercise-display').forEach(span => span.style.display = 'block');
-          document.querySelectorAll('.exercise-controls').forEach(div => div.style.display = 'none');
-
-
-          // Refresh the workout display
-          viewWorkout(currentWorkoutId, workoutNameDisplay.textContent);
-      });
-
-
-      // Search Exercises
-      searchButton.addEventListener('click', searchExercises);
-      searchInput.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') searchExercises();
-      });
-
-
-      // Save Workout (modified to handle both create and update)
-      document.getElementById('save-workout-btn').addEventListener('click', function() {
-          const workoutName = currentWorkoutId ?
-              workoutNameDisplay.textContent :
-              document.getElementById('workout-name-input').value.trim();
-
-
-          if (!workoutName) {
-              alert('Please enter a workout name');
-              return;
-          }
-
-
-          const exercises = [];
-
-
-          // Get existing exercises if editing
-          if (currentWorkoutId) {
-              document.querySelectorAll('#exercise-list .exercise-item').forEach(item => {
-                  if (!item.querySelector('.delete-exercise')?.dataset.deleted) {
-                      exercises.push({
-                          name: item.querySelector('span').textContent,
-                          sets: parseInt(item.querySelector('.sets').value) || 3,
-                          reps: parseInt(item.querySelector('.reps').value) || 10
-                      });
-                  }
-              });
-          }
-
-
-          // Add new exercises
-          Array.from(selectedExercisesList.children).forEach(div => {
-              exercises.push({
-                  name: div.querySelector('span').textContent,
-                  sets: parseInt(div.querySelector('.sets').value) || 3,
-                  reps: parseInt(div.querySelector('.reps').value) || 10
-              });
-          });
-
-
-          const data = {
-              name: workoutName,
-              exercises: exercises
-          };
-
-
-          const url = currentWorkoutId ?
-              `/dashboard/api/workouts/${currentWorkoutId}/update/` :
-              '/dashboard/api/workouts/create/';
-
-
-          fetch(url, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': getCsrfToken()
-              },
-              body: JSON.stringify(data)
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  isEditingMode = false;
-
-                  // Reset edit button
-                  editWorkoutBtn.textContent = 'Edit';
-                  editWorkoutBtn.classList.remove('btn-success');
-                  editWorkoutBtn.classList.add('btn-warning');
-                  editWorkoutBtn.disabled = false;
-
-                  if (currentWorkoutId) {
-                      // Update the display without refreshing for edits
-                      viewWorkout(currentWorkoutId, workoutName);
-                      exerciseSearchSection.style.display = 'none';
-                      selectedExercisesList.innerHTML = '';
-                      const exerciseList = document.getElementById('exercise-list');
-                      exerciseList.classList.remove('edit-mode');
-                  } else {
-                      // Refresh page for new workouts
-                      location.reload();
-                  }
-              } else {
-                  alert('Error saving workout: ' + data.error);
-              }
-          });
-      });
-
-
-      // Delete Exercise Button Handler
-      document.addEventListener('click', function(e) {
-          if (e.target.classList.contains('delete-exercise')) {
-              const exerciseItem = e.target.closest('.exercise-item');
-              e.target.dataset.deleted = 'true';
-              exerciseItem.style.display = 'none';
-          }
-      });
-
-
-      // Delete Workout
-      document.getElementById('delete-workout-btn').addEventListener('click', function() {
-          if (confirm('Are you sure you want to delete this workout?')) {
-              deleteWorkout(currentWorkoutId);
-          }
-      });
-
-
-      function viewWorkout(workoutId, workoutName) {
-          currentWorkoutId = workoutId;
-          isEditingMode = false;
-          exerciseSearchSection.style.display = 'none';
-          workoutDetails.style.display = 'block';
-          workoutNameDisplay.textContent = workoutName;
-
-          // Reset all "View" buttons to normal state
-          document.querySelectorAll('.view-workout').forEach(btn => {
-              btn.textContent = 'View';
-              btn.classList.remove('btn-info');
-              btn.classList.add('btn-warning');
-          });
-
-          // Change the clicked workout's button to "Viewing"
-          document.querySelectorAll(`.workout-item[data-workout-id="${workoutId}"] .view-workout`).forEach(btn => {
-              btn.textContent = 'Viewing';
-              btn.classList.remove('btn-warning');
-              btn.classList.add('btn-info');
-          });
-
-          // Reset edit button
-          editWorkoutBtn.textContent = 'Edit';
-          editWorkoutBtn.classList.remove('btn-success');
-          editWorkoutBtn.classList.add('btn-warning');
-          editWorkoutBtn.disabled = false;
-
-          // Fetch and display workout details
-          fetch(`/dashboard/api/workouts/${workoutId}/`)
-              .then(response => response.json())
-              .then(data => {
-                  const exerciseList = document.getElementById('exercise-list');
-                  exerciseList.innerHTML = '';
-                  if (data.exercises && data.exercises.length > 0) {
-                      data.exercises.forEach(exercise => {
-                          const div = document.createElement('div');
-                          div.className = 'exercise-item mb-2';
-                          div.innerHTML = `
-                              <span>${exercise.name}</span>
-                              <div class="exercise-controls">
-                                  <input type="number" class="form-control-sm sets" value="${exercise.sets}" min="1" placeholder="Sets">
-                                  <span>x</span>
-                                  <input type="number" class="form-control-sm reps" value="${exercise.reps}" min="1" placeholder="Reps">
-                                  <button class="btn btn-danger btn-sm delete-exercise">Remove</button>
-                              </div>
-                              <span class="exercise-display">${exercise.sets} x ${exercise.reps}</span>
-                          `;
-                          exerciseList.appendChild(div);
-                      });
-                  } else {
-                      exerciseList.innerHTML = '<p class="text-muted">No exercises added yet</p>';
-                  }
-              });
-      }
-
-
-      function searchExercises() {
-          const query = searchInput.value.trim();
-          if (!query) return;
-
-
-          searchResults.innerHTML = '<div class="text-center">Searching...</div>';
-
-
-          fetch(`/dashboard/api/exercises/?query=${encodeURIComponent(query)}`)
-              .then(response => response.json())
-              .then(data => {
-                  searchResults.innerHTML = '';
-                  data.forEach(exercise => {
-                      const div = document.createElement('div');
-                      div.className = 'search-result d-flex justify-content-between align-items-center mb-2';
-                      div.innerHTML = `
-                          <span>${exercise.name}</span>
-                          <div class="d-flex align-items-center">
-                              <input type="number" class="form-control-sm sets mx-1" value="3" min="1" style="width: 60px;" placeholder="Sets">
-                              <span>x</span>
-                              <input type="number" class="form-control-sm reps mx-1" value="10" min="1" style="width: 60px;" placeholder="Reps">
-                              <button class="btn btn-warning btn-sm ms-2">Add</button>
-                          </div>
-                      `;
-
-
-                      // Add click handler for the Add button
-                      div.querySelector('.btn').onclick = (e) => {
-                          e.stopPropagation();
-                          const sets = parseInt(div.querySelector('.sets').value) || 3;
-                          const reps = parseInt(div.querySelector('.reps').value) || 10;
-                          addExercise(exercise, sets, reps);
-                      };
-
-
-                      searchResults.appendChild(div);
-                  });
-              });
-      }
-
-
-      function addExercise(exercise, sets, reps) {
-          // Add to selected exercises list with sets and reps
-          const div = document.createElement('div');
-          div.className = 'selected-exercise mb-2';
-          div.innerHTML = `
-              <span>${exercise.name}</span>
-              <div class="exercise-controls">
-                  <input type="number" class="form-control-sm sets" value="${sets}" min="1" style="width: 60px;" placeholder="Sets">
-                  <span>x</span>
-                  <input type="number" class="form-control-sm reps" value="${reps}" min="1" style="width: 60px;" placeholder="Reps">
-                  <button class="btn btn-danger btn-sm ms-2">Remove</button>
-              </div>
-          `;
-
-
-          // Add click handler for the Remove button
-          div.querySelector('.btn-danger').onclick = () => div.remove();
-
-
-          selectedExercisesList.appendChild(div);
-      }
-
-
-      function deleteWorkout(workoutId) {
-          fetch(`/dashboard/api/workouts/${workoutId}/delete/`, {
-              method: 'DELETE',
-              headers: {
-                  'X-CSRFToken': getCsrfToken()
-              }
-          })
-          .then(response => {
-              if (response.ok) {
-                  location.reload();
-              } else {
-                  alert('Error deleting workout');
-              }
-          });
-      }
-
-
-      function getCsrfToken() {
-          const name = 'csrftoken';
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== '') {
-              const cookies = document.cookie.split(';');
-              for (let i = 0; i < cookies.length; i++) {
-                  const cookie = cookies[i].trim();
-                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                      break;
-                  }
-              }
-          }
-          return cookieValue;
-      }
-  });
+document.addEventListener('DOMContentLoaded', function() {
+    let currentWorkoutId = null;
+    const workoutDetails = document.getElementById('workout-details');
+    const exerciseSearchSection = document.getElementById('exercise-search-section');
+    const searchInput = document.getElementById('exercise-search');
+    const searchButton = document.getElementById('search-button');
+    const searchResults = document.getElementById('search-results');
+    const selectedExercisesList = document.getElementById('selected-exercises-list');
+    const workoutNameInput = document.getElementById('workout-name-input');
+    const workoutNameDisplay = document.getElementById('workout-name-display');
+
+
+    // View Workout
+    document.querySelectorAll('.view-workout').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const workoutItem = this.closest('.workout-item');
+            const workoutId = workoutItem.dataset.workoutId;
+            const workoutName = workoutItem.querySelector('.workout-name').textContent;
+            viewWorkout(workoutId, workoutName);
+        });
+    });
+
+
+    // Create New Workout
+    document.getElementById('create-workout-btn').addEventListener('click', function() {
+        // Show name input section, hide others
+        document.getElementById('workout-name-section').style.display = 'block';
+        document.getElementById('workout-details').style.display = 'none';
+        document.getElementById('exercise-search-section').style.display = 'none';
+        
+        // Clear and focus the input
+        document.getElementById('new-workout-name').value = '';
+        document.getElementById('new-workout-name').focus();
+    });
+
+
+    // Cancel Name
+    document.getElementById('cancel-name-btn').addEventListener('click', function() {
+        document.getElementById('workout-name-section').style.display = 'none';
+    });
+
+
+    // Save Name
+    document.getElementById('save-name-btn').addEventListener('click', function() {
+        const workoutName = document.getElementById('new-workout-name').value.trim();
+        
+        if (!workoutName) {
+            alert('Please enter a workout name');
+            return;
+        }
+        
+        // Create new workout
+        fetch('/dashboard/api/workouts/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                name: workoutName,
+                exercises: []
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentWorkoutId = data.workout_id;
+                
+                // Hide name input section
+                document.getElementById('workout-name-section').style.display = 'none';
+                
+                // Show workout details and exercise search
+                document.getElementById('workout-details').style.display = 'block';
+                document.getElementById('exercise-search-section').style.display = 'block';
+                
+                // Update displays
+                document.getElementById('workout-name-display').textContent = workoutName;
+                document.getElementById('exercise-list').innerHTML = '<p class="text-muted">No exercises added yet</p>';
+                
+                // Add to saved workouts list
+                const workoutsList = document.getElementById('saved-workouts-list');
+                const workoutItem = document.createElement('div');
+                workoutItem.className = 'workout-item mb-2';
+                workoutItem.dataset.workoutId = data.workout_id;
+                workoutItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-secondary rounded">
+                        <span class="workout-name">${workoutName}</span>
+                        <button class="btn btn-sm btn-warning view-workout">View</button>
+                    </div>
+                `;
+                
+                // Add click handler for the new View button
+                workoutItem.querySelector('.view-workout').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    viewWorkout(data.workout_id, workoutName);
+                });
+                
+                workoutsList.appendChild(workoutItem);
+            } else {
+                alert('Error creating workout: ' + (data.error || 'Unknown error'));
+            }
+        });
+    });
+
+
+    // Add Enter key support for the name input
+    document.getElementById('new-workout-name').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('save-name-btn').click();
+        }
+    });
+
+
+    // Edit Workout
+    document.getElementById('edit-workout-btn').addEventListener('click', function() {
+        const exerciseList = document.getElementById('exercise-list');
+        exerciseList.classList.add('edit-mode');
+        exerciseSearchSection.style.display = 'block';
+        selectedExercisesList.innerHTML = ''; // Clear new exercises list
+
+
+        // Show edit controls for existing exercises
+        document.querySelectorAll('.exercise-display').forEach(span => span.style.display = 'none');
+        document.querySelectorAll('.exercise-controls').forEach(div => div.style.display = 'flex');
+    });
+
+
+    // Cancel Edit
+    document.getElementById('cancel-edit-btn').addEventListener('click', function() {
+        const exerciseList = document.getElementById('exercise-list');
+        exerciseList.classList.remove('edit-mode');
+        exerciseSearchSection.style.display = 'none';
+
+
+        // Hide edit controls
+        document.querySelectorAll('.exercise-display').forEach(span => span.style.display = 'block');
+        document.querySelectorAll('.exercise-controls').forEach(div => div.style.display = 'none');
+
+
+        // Refresh the workout display
+        viewWorkout(currentWorkoutId, workoutNameDisplay.textContent);
+    });
+
+
+    // Search Exercises
+    searchButton.addEventListener('click', searchExercises);
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') searchExercises();
+    });
+
+
+    // Save Workout (modified to handle both create and update)
+    document.getElementById('save-workout-btn').addEventListener('click', function() {
+        const workoutName = currentWorkoutId ?
+            workoutNameDisplay.textContent :
+            document.getElementById('workout-name-input').value.trim();
+
+
+        if (!workoutName) {
+            alert('Please enter a workout name');
+            return;
+        }
+
+
+        const exercises = [];
+
+
+        // Get existing exercises if editing
+        if (currentWorkoutId) {
+            document.querySelectorAll('#exercise-list .exercise-item').forEach(item => {
+                if (!item.querySelector('.delete-exercise')?.dataset.deleted) {
+                    exercises.push({
+                        name: item.querySelector('span').textContent,
+                        sets: parseInt(item.querySelector('.sets').value) || 3,
+                        reps: parseInt(item.querySelector('.reps').value) || 10
+                    });
+                }
+            });
+        }
+
+
+        // Add new exercises
+        Array.from(selectedExercisesList.children).forEach(div => {
+            exercises.push({
+                name: div.querySelector('span').textContent,
+                sets: parseInt(div.querySelector('.sets').value) || 3,
+                reps: parseInt(div.querySelector('.reps').value) || 10
+            });
+        });
+
+
+        const data = {
+            name: workoutName,
+            exercises: exercises
+        };
+
+
+        const url = currentWorkoutId ?
+            `/dashboard/api/workouts/${currentWorkoutId}/update/` :
+            '/dashboard/api/workouts/create/';
+
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (currentWorkoutId) {
+                    // Update the display without refreshing for edits
+                    viewWorkout(currentWorkoutId, workoutName);
+                    exerciseSearchSection.style.display = 'none';
+                    selectedExercisesList.innerHTML = '';
+                    const exerciseList = document.getElementById('exercise-list');
+                    exerciseList.classList.remove('edit-mode');
+                } else {
+                    // Refresh page for new workouts
+                    location.reload();
+                }
+            } else {
+                alert('Error saving workout: ' + data.error);
+            }
+        });
+    });
+
+
+    // Delete Exercise Button Handler
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-exercise')) {
+            const exerciseItem = e.target.closest('.exercise-item');
+            e.target.dataset.deleted = 'true';
+            exerciseItem.style.display = 'none';
+        }
+    });
+
+
+    // Delete Workout
+    document.getElementById('delete-workout-btn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to delete this workout?')) {
+            deleteWorkout(currentWorkoutId);
+        }
+    });
+
+
+    function viewWorkout(workoutId, workoutName) {
+        currentWorkoutId = workoutId;
+        exerciseSearchSection.style.display = 'none';
+        workoutDetails.style.display = 'block';
+        workoutNameDisplay.textContent = workoutName;
+
+
+        // Fetch and display workout details
+        fetch(`/dashboard/api/workouts/${workoutId}/`)
+            .then(response => response.json())
+            .then(data => {
+                const exerciseList = document.getElementById('exercise-list');
+                exerciseList.innerHTML = '';
+                if (data.exercises && data.exercises.length > 0) {
+                    data.exercises.forEach(exercise => {
+                        const div = document.createElement('div');
+                        div.className = 'exercise-item mb-2';
+                        div.innerHTML = `
+                            <span>${exercise.name}</span>
+                            <div class="exercise-controls">
+                                <input type="number" class="form-control-sm sets" value="${exercise.sets}" min="1" placeholder="Sets">
+                                <span>x</span>
+                                <input type="number" class="form-control-sm reps" value="${exercise.reps}" min="1" placeholder="Reps">
+                                <button class="btn btn-danger btn-sm delete-exercise">Remove</button>
+                            </div>
+                            <span class="exercise-display">${exercise.sets} x ${exercise.reps}</span>
+                        `;
+                        exerciseList.appendChild(div);
+                    });
+                } else {
+                    exerciseList.innerHTML = '<p class="text-muted">No exercises added yet</p>';
+                }
+            });
+    }
+
+
+    function searchExercises() {
+        const query = searchInput.value.trim();
+        if (!query) return;
+
+
+        searchResults.innerHTML = '<div class="text-center">Searching...</div>';
+
+
+        fetch(`/dashboard/api/exercises/?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                searchResults.innerHTML = '';
+                data.forEach(exercise => {
+                    const div = document.createElement('div');
+                    div.className = 'search-result d-flex justify-content-between align-items-center mb-2';
+                    div.innerHTML = `
+                        <span>${exercise.name}</span>
+                        <div class="d-flex align-items-center">
+                            <input type="number" class="form-control-sm sets mx-1" value="3" min="1" style="width: 60px;" placeholder="Sets">
+                            <span>x</span>
+                            <input type="number" class="form-control-sm reps mx-1" value="10" min="1" style="width: 60px;" placeholder="Reps">
+                            <button class="btn btn-warning btn-sm ms-2">Add</button>
+                        </div>
+                    `;
+
+
+                    // Add click handler for the Add button
+                    div.querySelector('.btn').onclick = (e) => {
+                        e.stopPropagation();
+                        const sets = parseInt(div.querySelector('.sets').value) || 3;
+                        const reps = parseInt(div.querySelector('.reps').value) || 10;
+                        addExercise(exercise, sets, reps);
+                    };
+
+
+                    searchResults.appendChild(div);
+                });
+            });
+    }
+
+
+    function addExercise(exercise, sets, reps) {
+        // Add to selected exercises list with sets and reps
+        const div = document.createElement('div');
+        div.className = 'selected-exercise mb-2';
+        div.innerHTML = `
+            <span>${exercise.name}</span>
+            <div class="exercise-controls">
+                <input type="number" class="form-control-sm sets" value="${sets}" min="1" style="width: 60px;" placeholder="Sets">
+                <span>x</span>
+                <input type="number" class="form-control-sm reps" value="${reps}" min="1" style="width: 60px;" placeholder="Reps">
+                <button class="btn btn-danger btn-sm ms-2">Remove</button>
+            </div>
+        `;
+
+
+        // Add click handler for the Remove button
+        div.querySelector('.btn-danger').onclick = () => div.remove();
+
+
+        selectedExercisesList.appendChild(div);
+    }
+
+
+    function deleteWorkout(workoutId) {
+        fetch(`/dashboard/api/workouts/${workoutId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error deleting workout');
+            }
+        });
+    }
+
+
+    function getCsrfToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+    // Add some CSS to improve the layout
+    const style = document.createElement('style');
+    style.textContent = `
+        .search-result {
+            background-color: #2a2a2a;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+
+        .search-result:hover {
+            background-color: #3a3a3a;
+        }
+
+
+        .selected-exercise {
+            background-color: #1a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .exercise-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+
+        .form-control-sm {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: white;
+        }
+
+
+        .form-control-sm:focus {
+            background-color: #2a2a2a;
+            border-color: #ffc107;
+            color: white;
+        }
+
+
+        #workout-name-input {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+
+        #workout-name-input:focus {
+            background-color: #2a2a2a;
+            border-color: #ffc107;
+            color: white;
+            outline: none;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
 </script>
 {% endblock %}

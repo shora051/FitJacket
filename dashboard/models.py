@@ -13,6 +13,21 @@ class FitnessResponse(models.Model):
     def __str__(self):
         return self.question_keywords[:50]
 
+
+class DailyHealthLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    calories = models.PositiveIntegerField(null=True, blank=True)
+    cardio_minutes = models.PositiveIntegerField(null=True, blank=True)
+    steps = models.PositiveIntegerField(null=True, blank=True)
+    water_intake_liters = models.FloatField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"Health Log for {self.user.username} on {self.date}"
+
+
+
+
 class Workout(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, blank=False)
@@ -47,3 +62,23 @@ class FavoriteExercise(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.user.username}"
+
+
+class WorkoutLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    workout = models.ForeignKey(Workout, on_delete=models.CASCADE)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.workout.name} on {self.date} by {self.user.username}"
+
+
+class HealthLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    calories = models.PositiveIntegerField(null=True, blank=True)
+    cardio_minutes = models.PositiveIntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)  # New field
+
+    def __str__(self):
+        return f"Health stats for {self.user.username} on {self.date}"

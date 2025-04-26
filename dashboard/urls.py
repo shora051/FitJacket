@@ -19,4 +19,8 @@ urlpatterns = [
     path('api/favorites/', views.favorite_exercise, name='favorite_exercise'),
     path('api/favorites/list/', views.get_favorite_exercises, name='get_favorite_exercises'),
     path('api/favorites/check/<str:exercise_name>/', views.is_favorite_exercise, name='is_favorite_exercise'),
+    path('log-workout/', views.log_workout_ajax, name='log_workout_ajax'),
+    path('log-health/', views.log_health_ajax, name='log_health_ajax'),
+
+
 ]

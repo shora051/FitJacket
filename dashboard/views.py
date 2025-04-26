@@ -8,14 +8,105 @@ from django.http import JsonResponse
 from .gemini_api import get_gemini_response, FALLBACK_RESPONSES, logger
 from django.contrib.auth.decorators import login_required
 from .models import Workout, Exercise, FavoriteExercise
+from django.views.decorators.http import require_POST
+from .models import Workout, WorkoutLog,  HealthLog
+from datetime import datetime
 
 # ExerciseDB API key from environment variables
 EXERCISE_API_KEY = os.environ.get('EXERCISE_API_KEY', "a25fee685dmsha071584739ac939p10cfb9jsnd120e60f1348")
 
-
 @login_required
 def calendar_view(request):
-    return render(request, 'dashboard/calendar.html')
+    user_workouts = Workout.objects.filter(user=request.user)
+    workout_logs = WorkoutLog.objects.filter(user=request.user)
+    health_logs = HealthLog.objects.filter(user=request.user)
+
+    events = []
+
+    # Add Workout events (blue)
+    for log in workout_logs:
+        events.append({
+            "title": log.workout.name,
+            "start": log.date.isoformat(),
+            "color": "#3498db"  # blue color for workouts
+        })
+
+    # Add HealthLog events (green)
+    for health in health_logs:
+        events.append({
+            "title": "Tracked Health",
+            "start": health.date.isoformat(),
+            "color": "#2ecc71",  # green
+            "extendedProps": {
+                "isHealth": True,
+                "calories": health.calories,
+                "cardio": health.cardio_minutes,
+                "notes": health.notes,
+                "date": health.date.isoformat()
+            }
+        })
+
+
+    return render(request, 'dashboard/calendar.html', {
+        'workouts': user_workouts,
+        'events': json.dumps(events)
+    })
+
+
+
+
+@require_POST
+@login_required
+def log_health_ajax(request):
+    try:
+        data = json.loads(request.body)
+        date_str = data.get('date')
+        calories = data.get('calories')
+        cardio_minutes = data.get('cardio_minutes')
+
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+        HealthLog.objects.update_or_create(
+            user=request.user,
+            date=date,
+            defaults={
+                'calories': calories if calories else 0,
+                'cardio_minutes': cardio_minutes if cardio_minutes else 0
+            }
+        )
+
+        return JsonResponse({'status': 'success'})
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+
+
+
+
+@require_POST
+@login_required
+def log_workout_ajax(request):
+    try:
+        data = json.loads(request.body)
+        workout_id = data.get('workout_id')
+        date_str = data.get('date')
+
+        workout = Workout.objects.get(id=workout_id, user=request.user)
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+        WorkoutLog.objects.get_or_create(
+            user=request.user,
+            workout=workout,
+            date=date
+        )
+
+        return JsonResponse({'status': 'success'})
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
 
 
 def dashboard(request):
